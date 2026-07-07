@@ -1,0 +1,98 @@
+version: '3.8'
+
+services:
+  discovery-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        SERVICE_NAME: discovery-service
+    ports:
+      - "8761:8761"
+    networks:
+      - sandbox-net
+
+  config-server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        SERVICE_NAME: config-server
+    ports:
+      - "8888:8888"
+    environment:
+      - SPRING_PROFILES_ACTIVE=native
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-service:8761/eureka/
+    depends_on:
+      - discovery-service
+    networks:
+      - sandbox-net
+
+  auth-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        SERVICE_NAME: auth-service
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-auth:5432/sandbox_auth
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-service:8761/eureka/
+      - SPRING_CONFIG_IMPORT=optional:configserver:http://config-server:8888
+    depends_on:
+      - discovery-service
+      - config-server
+      - postgres-auth
+    networks:
+      - sandbox-net
+
+  container-sim-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        SERVICE_NAME: container-sim-service
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-containers:5432/sandbox_containers
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-service:8761/eureka/
+    depends_on:
+      - discovery-service
+      - config-server
+      - postgres-containers
+    networks:
+      - sandbox-net
+
+  api-gateway:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        SERVICE_NAME: api-gateway
+    ports:
+      - "8080:8080"
+    environment:
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-service:8761/eureka/
+    depends_on:
+      - discovery-service
+    networks:
+      - sandbox-net
+
+  # Databases
+  postgres-auth:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: sandbox_auth
+      POSTGRES_PASSWORD: adedeji1127
+    networks:
+      - sandbox-net
+
+  postgres-containers:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: sandbox_containers
+      POSTGRES_PASSWORD: adedeji1127
+    networks:
+      - sandbox-net
+
+networks:
+  sandbox-net:
+    driver: bridge
