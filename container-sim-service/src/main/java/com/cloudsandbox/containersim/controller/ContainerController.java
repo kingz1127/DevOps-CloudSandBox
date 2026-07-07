@@ -16,7 +16,9 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/v1/containers")
 @RequiredArgsConstructor
+@CrossOrigin(origins = "*")
 @Tag(name = "Container Simulator", description = "Simulates Docker-style container management logic")
+@io.swagger.v3.oas.annotations.security.SecurityRequirement(name = "bearerAuth")
 public class ContainerController {
 
     private final ContainerService containerService;
