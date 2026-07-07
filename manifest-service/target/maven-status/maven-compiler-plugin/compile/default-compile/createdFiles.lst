@@ -1,0 +1,3 @@
+com\cloudsandbox\manifest\controller\ManifestController.class
+com\cloudsandbox\manifest\service\YamlValidationService.class
+com\cloudsandbox\manifest\ManifestServiceApplication.class

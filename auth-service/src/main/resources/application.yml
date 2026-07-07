@@ -1,0 +1,28 @@
+server:
+  port: 8081
+
+spring:
+  application:
+    name: auth-service
+  datasource:
+    url: jdbc:postgresql://localhost:5432/sandbox_auth
+    username: postgres
+    password: adedeji1127
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+
+# Swagger Config for Gateway Aggregation
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+
+jwt:
+  secret: 1zcbHpUZkLDels67-SUEGSSt_nWdQpc_2hamlL5LJwa
+  expiration: 86400000 # 24 Hours
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/

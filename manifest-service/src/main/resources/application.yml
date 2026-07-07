@@ -1,0 +1,15 @@
+spring:
+  application:
+    name: manifest-service
+  config:
+    import: "optional:configserver:http://localhost:8888"
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/sandbox_manifest
+    username: postgres
+    password: adedeji1127
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: validate

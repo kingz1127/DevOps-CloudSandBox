@@ -1,0 +1,63 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: api-gateway
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: true # Allows us to route via Eureka service names
+      routes:
+        # Auth Service Route
+        - id: auth-service
+          uri: lb://auth-service
+          predicates:
+            - Path=/api/v1/auth/**, /auth/v3/api-docs/**
+          filters:
+            - StripPrefix=1
+
+        # 1. Protected Container Service Endpoints
+        - id: container-sim-service-api
+          uri: lb://container-sim-service
+          predicates:
+            - Path=/api/v1/containers/**
+          filters:
+            - AuthenticationFilter
+
+        # 2. Public Container Service API Docs (Bypasses Auth Filter)
+        - id: container-sim-service-docs
+          uri: lb://container-sim-service
+          predicates:
+            - Path=/containers/v3/api-docs/**
+          filters:
+            - StripPrefix=1
+
+        - id: progress-service
+          uri: lb://progress-service
+          predicates:
+            - Path=/api/v1/progress/**
+          filters:
+            - AuthenticationFilter
+
+# Swagger UI Configuration
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+    urls:
+      - name: Authentication Service
+        url: /auth/v3/api-docs
+      - name: Container Simulator Service
+        url: /containers/v3/api-docs
+  api-docs:
+    path: /v3/api-docs
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+
+# JWT Secret (Must match Auth Service)
+jwt:
+  secret: 1zcbHpUZkLDels67-SUEGSSt_nWdQpc_2hamlL5LJwa

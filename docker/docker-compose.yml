@@ -1,0 +1,25 @@
+version: '3.8'
+services:
+  discovery:
+    build: ./discovery-service
+    ports: ["8761:8761"]
+
+  config-server:
+    build: ./config-server
+    ports: ["8888:8888"]
+    environment:
+      - SPRING_PROFILES_ACTIVE=native
+
+  auth-service:
+    build: ./auth-service
+    depends_on:
+      - discovery
+      - config-server
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-auth:5432/auth_db
+
+  postgres-auth:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: auth_db
+      POSTGRES_PASSWORD: password

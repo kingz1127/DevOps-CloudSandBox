@@ -1,0 +1,11 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/sandbox_auth
+    username: postgres
+    password: adedeji1127
+  jpa:
+    hibernate:
+      ddl-auto: update
+jwt:
+  secret: 1zcbHpUZkLDels67-SUEGSSt_nWdQpc_2hamlL5LJwa
+  expiration: 86400000

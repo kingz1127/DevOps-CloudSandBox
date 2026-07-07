@@ -1,0 +1,13 @@
+server:
+  port: 8888
+
+spring:
+  application:
+    name: config-server
+  profiles:
+    active: native # We use native to read from local files instead of Git
+  cloud:
+    config:
+      server:
+        native:
+          search-locations: classpath:/config-repo # Where the .yml files are

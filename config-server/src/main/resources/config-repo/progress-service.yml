@@ -1,0 +1,8 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/sandbox_progress
+    username: postgres
+    password: adedeji1127
+  jpa:
+    hibernate:
+      ddl-auto: update

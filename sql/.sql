@@ -1,0 +1,21 @@
+-- CREATE TABLE users (
+--                        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+--                        first_name VARCHAR(50),
+--                        last_name VARCHAR(50),
+--                        email VARCHAR(100) UNIQUE NOT NULL,
+--                        password VARCHAR(255) NOT NULL,
+--                        role VARCHAR(20) DEFAULT 'USER',
+--                        avatar_url TEXT,
+--                        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+-- );
+--
+-- CREATE TABLE sim_containers (
+--                                 id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+--                                 user_id UUID NOT NULL,
+--                                 container_name VARCHAR(100),
+--                                 image_name VARCHAR(100),
+--                                 status VARCHAR(20), -- RUNNING, STOPPED, FAILED
+--                                 port_mapping VARCHAR(50),
+--                                 yaml_manifest TEXT,
+--                                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+-- );

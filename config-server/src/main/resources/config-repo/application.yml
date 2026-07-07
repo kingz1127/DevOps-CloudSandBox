@@ -1,0 +1,12 @@
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+  instance:
+    prefer-ip-address: true
+
+# Global logging for troubleshooting
+logging:
+  level:
+    root: INFO
+    com.cloudsandbox: DEBUG
