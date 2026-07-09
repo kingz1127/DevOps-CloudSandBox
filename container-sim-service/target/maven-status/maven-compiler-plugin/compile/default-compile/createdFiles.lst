@@ -17,6 +17,7 @@ com\cloudsandbox\containersim\entity\SimContainer$SimContainerBuilder.class
 com\cloudsandbox\containersim\dto\request\CreateContainerRequest.class
 com\cloudsandbox\containersim\entity\ContainerLog$ContainerLogBuilder.class
 com\cloudsandbox\containersim\service\ContainerService.class
+com\cloudsandbox\containersim\config\OpenApiConfig.class
 com\cloudsandbox\containersim\dto\response\ContainerResponse.class
 com\cloudsandbox\containersim\controller\ContainerController.class
 com\cloudsandbox\containersim\service\impl\ContainerServiceImpl.class

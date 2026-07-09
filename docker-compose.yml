@@ -1,12 +1,10 @@
-version: '3.8'
-
 services:
   discovery-service:
     build:
       context: .
-      dockerfile: Dockerfile
       args:
         SERVICE_NAME: discovery-service
+    container_name: discovery-service
     ports:
       - "8761:8761"
     networks:
@@ -15,9 +13,9 @@ services:
   config-server:
     build:
       context: .
-      dockerfile: Dockerfile
       args:
         SERVICE_NAME: config-server
+    container_name: config-server
     ports:
       - "8888:8888"
     environment:
@@ -31,11 +29,13 @@ services:
   auth-service:
     build:
       context: .
-      dockerfile: Dockerfile
       args:
         SERVICE_NAME: auth-service
+    container_name: auth-service
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-auth:5432/sandbox_auth
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=adedeji1127
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-service:8761/eureka/
       - SPRING_CONFIG_IMPORT=optional:configserver:http://config-server:8888
     depends_on:
@@ -48,12 +48,15 @@ services:
   container-sim-service:
     build:
       context: .
-      dockerfile: Dockerfile
       args:
         SERVICE_NAME: container-sim-service
+    container_name: container-sim-service
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-containers:5432/sandbox_containers
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=adedeji1127
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-service:8761/eureka/
+      - SPRING_CONFIG_IMPORT=optional:configserver:http://config-server:8888
     depends_on:
       - discovery-service
       - config-server
@@ -64,9 +67,9 @@ services:
   api-gateway:
     build:
       context: .
-      dockerfile: Dockerfile
       args:
         SERVICE_NAME: api-gateway
+    container_name: api-gateway
     ports:
       - "8080:8080"
     environment:
@@ -76,19 +79,75 @@ services:
     networks:
       - sandbox-net
 
-  # Databases
+  manifest-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        SERVICE_NAME: manifest-service
+    container_name: manifest-service
+    environment:
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-service:8761/eureka/
+      - SPRING_CONFIG_IMPORT=optional:configserver:http://config-server:8888
+    depends_on:
+      - discovery-service
+      - config-server
+    networks:
+      - sandbox-net
+
+  progress-service:
+    build:
+      context: .
+      args:
+        SERVICE_NAME: progress-service
+    container_name: progress-service
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-progress:5432/sandbox_progress
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-service:8761/eureka/
+    depends_on:
+      - discovery-service
+      - postgres-progress
+    networks:
+      - sandbox-net
+
+  loadbalancer-sim-service:
+      build:
+        context: .
+        args:
+          SERVICE_NAME: loadbalancer-sim-service
+      container_name: loadbalancer-sim-service
+      environment:
+        - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-service:8761/eureka/
+      depends_on:
+        - discovery-service
+      networks:
+        - sandbox-net
+
   postgres-auth:
-    image: postgres:15
+    image: postgres:15-alpine
+    container_name: postgres-auth
     environment:
       POSTGRES_DB: sandbox_auth
+      POSTGRES_USER: postgres
       POSTGRES_PASSWORD: adedeji1127
     networks:
       - sandbox-net
 
   postgres-containers:
-    image: postgres:15
+    image: postgres:15-alpine
+    container_name: postgres-containers
     environment:
       POSTGRES_DB: sandbox_containers
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: adedeji1127
+    networks:
+      - sandbox-net
+
+  postgres-progress:
+    image: postgres:15-alpine
+    container_name: postgres-progress
+    environment:
+      POSTGRES_DB: sandbox_progress
       POSTGRES_PASSWORD: adedeji1127
     networks:
       - sandbox-net

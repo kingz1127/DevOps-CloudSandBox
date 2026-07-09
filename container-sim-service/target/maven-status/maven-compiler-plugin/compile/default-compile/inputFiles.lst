@@ -16,5 +16,6 @@ C:\Users\USER\devops-cloudsandbox\container-sim-service\src\main\java\com\clouds
 C:\Users\USER\devops-cloudsandbox\container-sim-service\src\main\java\com\cloudsandbox\containersim\entity\ContainerEvent.java
 C:\Users\USER\devops-cloudsandbox\container-sim-service\src\main\java\com\cloudsandbox\containersim\exception\ContainerNotFoundException.java
 C:\Users\USER\devops-cloudsandbox\container-sim-service\src\main\java\com\cloudsandbox\containersim\ContainerSimServiceApplication.java
+C:\Users\USER\devops-cloudsandbox\container-sim-service\src\main\java\com\cloudsandbox\containersim\config\OpenApiConfig.java
 C:\Users\USER\devops-cloudsandbox\container-sim-service\src\main\java\com\cloudsandbox\containersim\repository\ContainerEventRepository.java
 C:\Users\USER\devops-cloudsandbox\container-sim-service\src\main\java\com\cloudsandbox\containersim\exception\InvalidStateTransitionException.java

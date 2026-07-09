@@ -15,7 +15,7 @@
     <groupId>com.cloudsandbox</groupId>
     <artifactId>devops-cloudsandbox-parent</artifactId>
     <version>1.0.0</version>
-    <packaging>pom</packaging> <!-- IMPORTANT: Must be pom -->
+    <packaging>pom</packaging>
 
     <name>DevOps CloudSandbox Root</name>
     <description>Root POM for DevOps CloudSandbox Microservices</description>
@@ -28,8 +28,9 @@
         <module>container-sim-service</module>
         <module>discovery-service</module>
         <module>manifest-service</module>
-        <!-- Add others as you build them -->
-        <!-- <module>manifest-service</module> -->
+        <module>progress-service</module>
+        <module>loadbalancer-sim-service</module>
+
     </modules>
 
     <properties>
@@ -53,13 +54,17 @@
 
     <build>
         <plugins>
-            <!-- Allows building all Jars at once -->
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
-                <configuration>
-                    <skip>true</skip> <!-- Parent doesn't need a Jar -->
-                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>repackage</goal>
+                        </goals>
+                    </execution>
+                </executions>
+
             </plugin>
         </plugins>
     </build>

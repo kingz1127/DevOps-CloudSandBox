@@ -1,0 +1,54 @@
+server:
+  port: 8080
+
+spring:
+  cloud:
+    gateway:
+      routes:
+        - id: auth-service
+          uri: lb://auth-service
+          predicates:
+            - Path=/api/v1/auth/**
+
+        - id: container-sim-service
+          uri: lb://container-sim-service
+          predicates:
+            - Path=/api/v1/containers/**
+          filters:
+            - AuthenticationFilter
+
+        - id: manifest-service
+          uri: lb://manifest-service
+          predicates:
+            - Path=/api/v1/manifests/**
+          filters:
+            - AuthenticationFilter
+
+        - id: progress-service
+          uri: lb://progress-service
+          predicates:
+            - Path=/api/v1/progress/**
+          filters:
+            - AuthenticationFilter
+
+        - id: loadbalancer-sim-service
+          uri: lb://loadbalancer-sim-service
+          predicates:
+            - Path=/api/v1/lb/**
+          filters:
+            - AuthenticationFilter
+
+# Swagger/OpenAPI aggregation
+springdoc:
+  swagger-ui:
+    urls:
+      - name: 1. Auth Service
+        url: /api/v1/auth/v3/api-docs
+      - name: 2. Container Simulator
+        url: /api/v1/containers/v3/api-docs
+      - name: 3. Manifest Validator
+        url: /api/v1/manifests/v3/api-docs
+      - name: 4. Progress Tracker
+        url: /api/v1/progress/v3/api-docs
+      - name: 5. Load Balancer Sim
+        url: /api/v1/lb/v3/api-docs

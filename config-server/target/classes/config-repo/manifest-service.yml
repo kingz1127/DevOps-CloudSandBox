@@ -1,0 +1,11 @@
+server:
+  port: 8083
+
+spring:
+  application:
+    name: manifest-service
+
+# Custom settings for YAML limits
+sandbox:
+  manifest:
+    max-file-size: 1MB
