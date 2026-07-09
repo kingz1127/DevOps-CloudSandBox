@@ -1,3 +1,62 @@
+#server:
+#  port: 8080
+#
+#spring:
+#  cloud:
+#    gateway:
+#      routes:
+#        - id: auth-service
+#          uri: lb://AUTH-SERVICE
+#          predicates:
+#            - Path=/api/v1/auth/**
+#          filters:
+#            - PreserveHostHeader
+#
+#        - id: container-sim-service
+#          uri: lb://CONTAINER-SIM-SERVICE
+#          predicates:
+#            - Path=/api/v1/containers/**
+#          filters:
+#            - AuthenticationFilter
+#
+#        - id: manifest-service
+#          uri: lb://MANIFEST-SERVICE
+#          predicates:
+#            - Path=/api/v1/manifests/**
+#          filters:
+#            - AuthenticationFilter
+#
+#        - id: progress-service
+#          uri: lb://PROGRESS-SERVICE
+#          predicates:
+#            - Path=/api/v1/progress/**
+#          filters:
+#            - AuthenticationFilter
+#
+#        - id: loadbalancer-sim-service
+#          uri: lb://LOADBALANCER-SIM-SERVICE
+#          predicates:
+#            - Path=/api/v1/lb/**
+#          filters:
+#            - AuthenticationFilter
+#
+## Swagger UI aggregation configuration
+#springdoc:
+#  swagger-ui:
+#    # This tells Swagger UI to look for the docs via the Gateway's routes
+#    urls:
+#      - name: 1. Auth Service
+#        url: /api/v1/auth/v3/api-docs
+#      - name: 2. Container Simulator
+#        url: /api/v1/containers/v3/api-docs
+#      - name: 3. Manifest Validator
+#        url: /api/v1/manifests/v3/api-docs
+#      - name: 4. Progress Tracker
+#        url: /api/v1/progress/v3/api-docs
+#      - name: 5. Load Balancer Sim
+#        url: /api/v1/lb/v3/api-docs
+
+
 server:
   port: 8080
 
@@ -6,49 +65,58 @@ spring:
     gateway:
       routes:
         - id: auth-service
-          uri: lb://auth-service
+          uri: lb://AUTH-SERVICE
           predicates:
-            - Path=/api/v1/auth/**
+            - Path=/api/v1/auth/**, /auth-service/v3/api-docs/**
+          filters:
+            - PreserveHostHeader
+            # Rewrites /auth-service/v3/api-docs to /v3/api-docs before sending to service
+            - RewritePath=/auth-service/(?<path>.*), /$\{path}
 
         - id: container-sim-service
-          uri: lb://container-sim-service
+          uri: lb://CONTAINER-SIM-SERVICE
           predicates:
-            - Path=/api/v1/containers/**
+            - Path=/api/v1/containers/**, /container-sim-service/v3/api-docs/**
           filters:
             - AuthenticationFilter
+            - RewritePath=/container-sim-service/(?<path>.*), /$\{path}
 
         - id: manifest-service
-          uri: lb://manifest-service
+          uri: lb://MANIFEST-SERVICE
           predicates:
-            - Path=/api/v1/manifests/**
+            - Path=/api/v1/manifests/**, /manifest-service/v3/api-docs/**
           filters:
             - AuthenticationFilter
+            - RewritePath=/manifest-service/(?<path>.*), /$\{path}
 
         - id: progress-service
-          uri: lb://progress-service
+          uri: lb://PROGRESS-SERVICE
           predicates:
-            - Path=/api/v1/progress/**
+            - Path=/api/v1/progress/**, /progress-service/v3/api-docs/**
           filters:
             - AuthenticationFilter
+            - RewritePath=/progress-service/(?<path>.*), /$\{path}
 
         - id: loadbalancer-sim-service
-          uri: lb://loadbalancer-sim-service
+          uri: lb://LOADBALANCER-SIM-SERVICE
           predicates:
-            - Path=/api/v1/lb/**
+            - Path=/api/v1/lb/**, /loadbalancer-sim-service/v3/api-docs/**
           filters:
             - AuthenticationFilter
+            - RewritePath=/loadbalancer-sim-service/(?<path>.*), /$\{path}
 
-# Swagger/OpenAPI aggregation
+# Swagger UI aggregation configuration
 springdoc:
   swagger-ui:
+    path: /swagger-ui.html
     urls:
       - name: 1. Auth Service
-        url: /api/v1/auth/v3/api-docs
+        url: /auth-service/v3/api-docs
       - name: 2. Container Simulator
-        url: /api/v1/containers/v3/api-docs
+        url: /container-sim-service/v3/api-docs
       - name: 3. Manifest Validator
-        url: /api/v1/manifests/v3/api-docs
+        url: /manifest-service/v3/api-docs
       - name: 4. Progress Tracker
-        url: /api/v1/progress/v3/api-docs
+        url: /progress-service/v3/api-docs
       - name: 5. Load Balancer Sim
-        url: /api/v1/lb/v3/api-docs
+        url: /loadbalancer-sim-service/v3/api-docs

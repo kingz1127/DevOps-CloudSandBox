@@ -3,9 +3,8 @@ spring:
     name: manifest-service
   config:
     import: "optional:configserver:http://config-server:8888"
-
   datasource:
-    url: jdbc:postgresql://postgres-containers:5432/sandbox_manifest
+    url: jdbc:postgresql://postgres-manifest:5432/sandbox_manifest
     username: postgres
     password: adedeji1127
     driver-class-name: org.postgresql.Driver
@@ -13,3 +12,17 @@ spring:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
       ddl-auto: validate
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://discovery-service:8761/eureka/
+  instance:
+    prefer-ip-address: true
+
+server:
+  port: 8083
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html

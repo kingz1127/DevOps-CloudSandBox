@@ -17,6 +17,7 @@ C:\Users\USER\devops-cloudsandbox\auth-service\src\main\java\com\cloudsandbox\au
 C:\Users\USER\devops-cloudsandbox\auth-service\src\main\java\com\cloudsandbox\auth\service\impl\AuthServiceImpl.java
 C:\Users\USER\devops-cloudsandbox\auth-service\src\main\java\com\cloudsandbox\auth\dto\request\UpdateProfileRequest.java
 C:\Users\USER\devops-cloudsandbox\auth-service\src\main\java\com\cloudsandbox\auth\security\CustomUserDetailsService.java
+C:\Users\USER\devops-cloudsandbox\auth-service\src\main\java\com\cloudsandbox\auth\config\SwaggerConfig.java
 C:\Users\USER\devops-cloudsandbox\auth-service\src\main\java\com\cloudsandbox\auth\dto\request\RegisterRequest.java
 C:\Users\USER\devops-cloudsandbox\auth-service\src\main\java\com\cloudsandbox\auth\config\SecurityConfig.java
 C:\Users\USER\devops-cloudsandbox\auth-service\src\main\java\com\cloudsandbox\auth\exception\GlobalExceptionHandler.java

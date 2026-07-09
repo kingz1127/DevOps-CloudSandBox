@@ -2,3 +2,4 @@ com\cloudsandbox\loadbalancer\LoadBalancerApplication.class
 com\cloudsandbox\loadbalancer\controller\LoadBalancerController.class
 com\cloudsandbox\loadbalancer\service\LBEngine.class
 com\cloudsandbox\loadbalancer\service\LoadBalancerEngine.class
+com\cloudsandbox\manifest\config\SwaggerConfig.class

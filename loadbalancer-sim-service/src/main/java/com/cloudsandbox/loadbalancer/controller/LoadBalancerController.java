@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/v1/lb")
+@RequestMapping("/api/v1/loadbalancers")
 @RequiredArgsConstructor
 public class LoadBalancerController {
     private final LBEngine lbEngine;

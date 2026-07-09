@@ -87,11 +87,15 @@ services:
         SERVICE_NAME: manifest-service
     container_name: manifest-service
     environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-manifest:5432/sandbox_manifest
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=adedeji1127
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-service:8761/eureka/
       - SPRING_CONFIG_IMPORT=optional:configserver:http://config-server:8888
     depends_on:
       - discovery-service
       - config-server
+      - postgres-manifest
     networks:
       - sandbox-net
 
@@ -103,7 +107,10 @@ services:
     container_name: progress-service
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-progress:5432/sandbox_progress
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=adedeji1127
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-service:8761/eureka/
+      - SPRING_CONFIG_IMPORT=optional:configserver:http://config-server:8888
     depends_on:
       - discovery-service
       - postgres-progress
@@ -118,6 +125,7 @@ services:
       container_name: loadbalancer-sim-service
       environment:
         - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-service:8761/eureka/
+        - SPRING_CONFIG_IMPORT=optional:configserver:http://config-server:8888
       depends_on:
         - discovery-service
       networks:
@@ -151,6 +159,17 @@ services:
       POSTGRES_PASSWORD: adedeji1127
     networks:
       - sandbox-net
+
+  postgres-manifest:
+    image: postgres:15-alpine
+    container_name: postgres-manifest
+    environment:
+      POSTGRES_DB: sandbox_manifest
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: adedeji1127
+    networks:
+      - sandbox-net
+
 
 networks:
   sandbox-net:

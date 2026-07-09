@@ -1,3 +1,4 @@
+com\cloudsandbox\auth\config\SwaggerConfig.class
 com\cloudsandbox\auth\repository\RefreshTokenRepository.class
 com\cloudsandbox\auth\dto\request\RegisterRequest.class
 com\cloudsandbox\auth\dto\response\AuthResponse.class
