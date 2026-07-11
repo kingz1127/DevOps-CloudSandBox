@@ -3,7 +3,7 @@ server:
 
 spring:
   application:
-    name: config-server # This name will now show up in Eureka
+    name: config-server
   profiles:
     active: native
   cloud:
@@ -12,7 +12,7 @@ spring:
         native:
           search-locations: classpath:/config-repo
 
-# ADD THIS SECTION:
+
 eureka:
   client:
     service-url:
