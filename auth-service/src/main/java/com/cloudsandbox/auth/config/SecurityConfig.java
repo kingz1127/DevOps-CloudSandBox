@@ -21,14 +21,15 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
+                // 1. Disable CSRF (This is the #1 cause of 403 on POST requests)
                 .csrf(csrf -> csrf.disable())
+
+                // 2. Disable CORS here because the API Gateway handles it
+                .cors(cors -> cors.disable())
+
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(
-                                "/api/v1/auth/**",
-                                "/v3/api-docs/**",
-                                "/auth/v3/api-docs/**",
-                                "/swagger-ui/**"
-                        ).permitAll()
+                        // 3. Allow all auth and swagger paths
+                        .requestMatchers("/api/v1/auth/**", "/v3/api-docs/**", "/swagger-ui/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));

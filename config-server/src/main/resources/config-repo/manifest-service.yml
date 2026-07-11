@@ -2,10 +2,14 @@ server:
   port: 8083
 
 spring:
-  application:
-    name: manifest-service
+  datasource:
+    url: jdbc:postgresql://postgres-manifest:5432/sandbox_manifest
+    username: postgres
+    password: adedeji1127
+  jpa:
+    hibernate:
+      ddl-auto: update
 
-# Custom settings for YAML limits
 sandbox:
   manifest:
     max-file-size: 1MB

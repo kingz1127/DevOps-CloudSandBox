@@ -1,5 +1,7 @@
+com\cloudsandbox\loadbalancer\entity\LoadBalancer.class
 com\cloudsandbox\loadbalancer\LoadBalancerApplication.class
 com\cloudsandbox\loadbalancer\controller\LoadBalancerController.class
 com\cloudsandbox\loadbalancer\service\LBEngine.class
 com\cloudsandbox\loadbalancer\service\LoadBalancerEngine.class
-com\cloudsandbox\manifest\config\SwaggerConfig.class
+com\cloudsandbox\loadbalancer\entity\LoadBalancer$LoadBalancerBuilder.class
+com\cloudsandbox\loadbalancer\config\SwaggerConfig.class

@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres-auth
+  namespace: sandbox-ns
+spec:
+  selector: { matchLabels: { app: db-auth } }
+  template:
+    metadata: { labels: { app: db-auth } }
+    spec:
+      containers:
+        - name: postgres
+          image: postgres:15-alpine
+          env:
+            - name: POSTGRES_DB
+              value: "sandbox_auth"
+            - name: POSTGRES_PASSWORD
+              valueFrom: { configMapKeyRef: { name: sandbox-config, key: POSTGRES_PASS } }
+          volumeMounts: [{ name: storage, mountPath: /var/lib/postgresql/data }]
+      volumes: [{ name: storage, persistentVolumeClaim: { claimName: postgres-auth-pvc } }]
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres-auth
+  namespace: sandbox-ns
+spec:
+  selector: { app: db-auth }
+  ports: [{ port: 5432 }]
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres-containers
+  namespace: sandbox-ns
+spec:
+  selector: { matchLabels: { app: db-containers } }
+  template:
+    metadata: { labels: { app: db-containers } }
+    spec:
+      containers:
+        - name: postgres
+          image: postgres:15-alpine
+          env:
+            - name: POSTGRES_DB
+              value: "sandbox_containers"
+            - name: POSTGRES_PASSWORD
+              valueFrom: { configMapKeyRef: { name: sandbox-config, key: POSTGRES_PASS } }
+          volumeMounts: [{ name: storage, mountPath: /var/lib/postgresql/data }]
+      volumes: [{ name: storage, persistentVolumeClaim: { claimName: postgres-containers-pvc } }]
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres-containers
+  namespace: sandbox-ns
+spec:
+  selector: { app: db-containers }
+  ports: [{ port: 5432 }]

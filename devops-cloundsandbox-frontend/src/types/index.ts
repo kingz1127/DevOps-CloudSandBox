@@ -1,9 +1,9 @@
-export interface User {
-  id: string;
-  username: string;
-  email: string;
-  role: string;
-}
+// export interface User {
+//   id: string;
+//   username: string;
+//   email: string;
+//   role: string;
+// }
 
 export interface Container {
   id: string;
@@ -14,7 +14,25 @@ export interface Container {
   status: 'RUNNING' | 'STOPPED' | 'ERROR';
 }
 
+export interface User {
+  id: string;
+  firstName: string;
+  lastName: string;
+  username: string;
+  email: string;
+  cohortCode: string;
+  role: string;
+}
+
 export interface AuthResponse {
   accessToken: string;
+  refreshToken: string;
+  expiresAt: number;
+  username: string;
   user: User;
+}
+
+export interface ApiError {
+  message: string;
+  status: number;
 }

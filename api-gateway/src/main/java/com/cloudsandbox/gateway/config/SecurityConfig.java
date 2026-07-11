@@ -15,15 +15,18 @@ import java.util.Arrays;
 @EnableWebFluxSecurity
 public class SecurityConfig {
 
+
     @Bean
     public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
         http
-                .csrf(ServerHttpSecurity.CsrfSpec::disable) // Disable CSRF for REST APIs
+                .csrf(ServerHttpSecurity.CsrfSpec::disable)
+                .cors(ServerHttpSecurity.CorsSpec::disable)
                 .authorizeExchange(exchanges -> exchanges
-                        // Allow anyone to access Auth endpoints and Swagger docs
-                        .pathMatchers("/api/v1/auth/**", "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html", "/webjars/**").permitAll()
-                        // All other requests go through your custom AuthenticationFilter
                         .anyExchange().permitAll()
+                )
+                // ADD THIS BLOCK: It removes duplicate headers from microservices
+                .headers(headers -> headers
+                        .frameOptions(frameOptions -> frameOptions.disable())
                 );
 
         return http.build();
@@ -32,11 +35,11 @@ public class SecurityConfig {
     @Bean
     public CorsWebFilter corsWebFilter() {
         CorsConfiguration corsConfig = new CorsConfiguration();
-        // Permit all origins, methods, and headers for development
-        corsConfig.setAllowedOriginPatterns(Arrays.asList("*"));
+        // Be specific! Do not use "*" if you use AllowCredentials(true)
+        corsConfig.setAllowedOrigins(Arrays.asList("http://localhost:5173", "http://localhost:3000"));
         corsConfig.setMaxAge(3600L);
         corsConfig.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
-        corsConfig.setAllowedHeaders(Arrays.asList("*"));
+        corsConfig.setAllowedHeaders(Arrays.asList("Content-Type", "Authorization", "X-User-Id", "Accept"));
         corsConfig.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();

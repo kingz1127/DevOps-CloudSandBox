@@ -3,6 +3,7 @@ spring:
     name: manifest-service
   config:
     import: "optional:configserver:http://config-server:8888"
+
   datasource:
     url: jdbc:postgresql://postgres-manifest:5432/sandbox_manifest
     username: postgres

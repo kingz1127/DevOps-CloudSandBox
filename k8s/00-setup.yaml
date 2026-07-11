@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: sandbox-ns
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: sandbox-config
+  namespace: sandbox-ns
+data:
+  EUREKA_URL: "http://discovery-service:8761/eureka/"
+  CONFIG_SERVER_URL: "http://config-server:8888"
+  POSTGRES_USER: "postgres"
+  POSTGRES_PASS: "adedeji1127"

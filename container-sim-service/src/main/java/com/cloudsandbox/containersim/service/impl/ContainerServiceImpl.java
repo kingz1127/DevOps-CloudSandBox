@@ -44,15 +44,17 @@ public class ContainerServiceImpl implements ContainerService {
     @Override
     public ContainerResponse stopContainer(String userId, String id) {
         SimContainer container = repository.findByIdAndUserId(id, userId)
-                .orElseThrow(() -> new RuntimeException("Container not found"));
+                .orElseThrow(() -> new RuntimeException("Container not found or access denied"));
+
         container.setStatus(ContainerStatus.STOPPED);
+
         return mapToResponse(repository.save(container));
     }
 
     @Override
     public void deleteContainer(String userId, String id) {
         SimContainer container = repository.findByIdAndUserId(id, userId)
-                .orElseThrow(() -> new RuntimeException("Container not found"));
+                .orElseThrow(() -> new RuntimeException("Container not found or access denied"));
         repository.delete(container);
     }
 

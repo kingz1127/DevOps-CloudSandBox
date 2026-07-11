@@ -3,11 +3,19 @@ server:
 
 spring:
   application:
-    name: config-server
+    name: config-server # This name will now show up in Eureka
   profiles:
-    active: native # We use native to read from local files instead of Git
+    active: native
   cloud:
     config:
       server:
         native:
-          search-locations: classpath:/config-repo # Where the .yml files are
+          search-locations: classpath:/config-repo
+
+# ADD THIS SECTION:
+eureka:
+  client:
+    service-url:
+      defaultZone: http://discovery-service:8761/eureka/
+  instance:
+    prefer-ip-address: true

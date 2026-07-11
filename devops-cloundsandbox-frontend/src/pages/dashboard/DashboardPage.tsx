@@ -24,9 +24,26 @@ const DashboardPage = () => {
     fetchContainers();
   }, []);
 
+  // ... existing fetchContainers ...
+
   const handleStop = async (id: string) => {
-    await containerService.stop(id);
-    fetchContainers(); // Refresh list
+    try {
+      await containerService.stop(id);
+      fetchContainers(); 
+    } catch (error) {
+      alert("Failed to stop container. Check console.");
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    if (window.confirm("Are you sure you want to remove this container?")) {
+      try {
+        await containerService.delete(id);
+        setContainers(containers.filter(c => c.id !== id)); // Optimistic update
+      } catch (error) {
+        alert("Failed to delete container.");
+      }
+    }
   };
 
   return (
@@ -102,16 +119,20 @@ const DashboardPage = () => {
 
               <div className="pt-4 flex space-x-2">
                 <button 
-                  onClick={() => handleStop(c.id)}
-                  disabled={c.status === 'STOPPED'}
-                  className="flex-1 flex items-center justify-center space-x-2 bg-white border border-slate-300 py-2 rounded-lg text-xs font-bold hover:bg-slate-50 disabled:opacity-50"
-                >
-                  <Power size={14} />
-                  <span>Stop</span>
-                </button>
-                <button className="p-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-colors">
-                  <Trash2 size={16} />
-                </button>
+  onClick={() => handleStop(c.id)}
+  disabled={c.status === 'STOPPED'}
+  className="flex-1 flex items-center justify-center space-x-2 bg-slate-900 text-white py-2 rounded-lg text-xs font-bold hover:bg-slate-800 disabled:opacity-50 disabled:bg-slate-400"
+>
+  <Power size={14} />
+  <span>{c.status === 'STOPPED' ? 'Offline' : 'Stop'}</span>
+</button>
+
+<button 
+  onClick={() => handleDelete(c.id)}
+  className="p-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-colors"
+>
+  <Trash2 size={16} />
+</button>
               </div>
             </div>
           </div>

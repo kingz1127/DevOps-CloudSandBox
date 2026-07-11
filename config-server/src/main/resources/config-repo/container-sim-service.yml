@@ -1,5 +1,12 @@
+server:
+  port: 8082
+
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/sandbox_containers
+    url: jdbc:postgresql://postgres-containers:5432/sandbox_containers
     username: postgres
     password: adedeji1127
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true

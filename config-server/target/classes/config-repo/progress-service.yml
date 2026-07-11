@@ -1,6 +1,9 @@
+server:
+  port: 8085
+
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/sandbox_progress
+    url: jdbc:postgresql://postgres-progress:5432/sandbox_progress
     username: postgres
     password: adedeji1127
   jpa:
