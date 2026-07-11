@@ -32,8 +32,7 @@ spring:
           uri: lb://auth-service
           predicates:
             - Path=/api/v1/auth/**, /auth/v3/api-docs/**
-          filters:
-            - StripPrefix=1
+          # StripPrefix removed — auth-service needs the full /api/v1/auth prefix
 
         - id: container-sim-service-api
           uri: lb://container-sim-service
