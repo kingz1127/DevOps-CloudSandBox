@@ -1,19 +1,20 @@
 server:
-  port: 8081
+  port: ${PORT:8081}
 
 spring:
   application:
     name: auth-service
   datasource:
-    url: jdbc:postgresql://localhost:5432/sandbox_auth
-    username: postgres
-    password: adedeji1127
+    url: jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_NAME}?sslmode=require
+    username: ${DB_USER}
+    password: ${DB_PASSWORD}
+    driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
       ddl-auto: update
     show-sql: true
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
 
-# Swagger Config for Gateway Aggregation
 springdoc:
   swagger-ui:
     path: /swagger-ui.html
@@ -21,10 +22,10 @@ springdoc:
     path: /v3/api-docs
 
 jwt:
-  secret: 1zcbHpUZkLDels67-SUEGSSt_nWdQpc_2hamlL5LJwa
-  expiration: 86400000 # 24 Hours
+  secret: ${JWT_SECRET:1zcbHpUZkLDels67-SUEGSSt_nWdQpc_2hamlL5LJwa}
+  expiration: 86400000
 
 eureka:
   client:
     service-url:
-      defaultZone: http://localhost:8761/eureka/
+      defaultZone: ${EUREKA_URI:http://localhost:8761/eureka/}
