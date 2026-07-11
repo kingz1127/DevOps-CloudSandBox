@@ -1,19 +1,15 @@
-name: DevOps Sandbox CI Build
+name: DevOps Sandbox CI/CD
 
 on:
   push:
     branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
 
 jobs:
-  build:
+  build-and-push:
     runs-on: ubuntu-latest
-
     steps:
-
-      - uses: actions/checkout@v4
-
+      - name: Checkout Code
+        uses: actions/checkout@v4
 
       - name: Set up JDK 17
         uses: actions/setup-java@v4
@@ -22,13 +18,101 @@ jobs:
           distribution: 'temurin'
           cache: maven
 
-      # 3. Build the JARs (Skipping tests to avoid DB connection errors in CI)
-      - name: Build All Microservices
-        run: mvn clean package -B -DskipTests
+      - name: Build Java Binaries (JARs)
+        run: mvn clean package -DskipTests
 
-      # 4. Use v4 of upload-artifact (THIS FIXES YOUR ERROR)
-      - name: Upload Build Artifacts
-        uses: actions/upload-artifact@v4
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
         with:
-          name: sandbox-binaries
-          path: "**/target/*.jar"
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      # --- 1. Discovery Service ---
+      - name: Build & Push Discovery
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          build-args: SERVICE_NAME=discovery-service
+          tags: ${{ secrets.DOCKER_USERNAME }}/sandbox-discovery:latest
+
+      # --- 2. Config Server ---
+      - name: Build & Push Config Server
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          build-args: SERVICE_NAME=config-server
+          tags: ${{ secrets.DOCKER_USERNAME }}/sandbox-config-server:latest
+
+      # --- 3. Auth Service ---
+      - name: Build & Push Auth Service
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          build-args: SERVICE_NAME=auth-service
+          tags: ${{ secrets.DOCKER_USERNAME }}/sandbox-auth:latest
+
+      # --- 4. API Gateway ---
+      - name: Build & Push Gateway
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          build-args: SERVICE_NAME=api-gateway
+          tags: ${{ secrets.DOCKER_USERNAME }}/sandbox-gateway:latest
+
+      # --- 5. Container Sim Service ---
+      - name: Build & Push Container Sim
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          build-args: SERVICE_NAME=container-sim-service
+          tags: ${{ secrets.DOCKER_USERNAME }}/sandbox-container-sim:latest
+
+      # --- 6. Manifest Service ---
+      - name: Build & Push Manifest Service
+        uses: docker/build-push-action@v5
+        with:
+          with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          build-args: SERVICE_NAME=manifest-service
+          tags: ${{ secrets.DOCKER_USERNAME }}/sandbox-manifest:latest
+
+      # --- 7. Progress Service ---
+      - name: Build & Push Progress Service
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          build-args: SERVICE_NAME=progress-service
+          tags: ${{ secrets.DOCKER_USERNAME }}/sandbox-progress:latest
+
+      # --- 8. Load Balancer Sim Service ---
+      - name: Build & Push LB Sim Service
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          build-args: SERVICE_NAME=loadbalancer-sim-service
+          tags: ${{ secrets.DOCKER_USERNAME }}/sandbox-lb-sim:latest
+
+      # --- 9. Frontend (React/Vite) ---
+      - name: Build & Push Frontend
+        uses: docker/build-push-action@v5
+        with:
+          context: ./frontend
+          file: ./frontend/Dockerfile
+          push: true
+          tags: ${{ secrets.DOCKER_USERNAME }}/sandbox-frontend:latest
