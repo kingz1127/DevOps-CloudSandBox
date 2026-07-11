@@ -1,0 +1,46 @@
+services:
+  discovery-service:
+    image: your-docker-username/sandbox-discovery:latest
+    container_name: discovery-service
+    ports: ["8761:8761"]
+    networks: [sandbox-net]
+
+  config-server:
+    image: your-docker-username/sandbox-config-server:latest
+    container_name: config-server
+    ports: ["8888:8888"]
+    environment:
+      - SPRING_PROFILES_ACTIVE=native
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-service:8761/eureka/
+    depends_on: [discovery-service]
+    networks: [sandbox-net]
+
+  api-gateway:
+    image: your-docker-username/sandbox-gateway:latest
+    container_name: api-gateway
+    ports: ["8080:8080"]
+    environment:
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-service:8761/eureka/
+    depends_on: [discovery-service, config-server]
+    networks: [sandbox-net]
+
+  frontend-ui:
+    image: your-docker-username/sandbox-frontend:latest
+    container_name: frontend-ui
+    ports: ["5173:80"]
+    networks: [sandbox-net]
+    depends_on: [api-gateway]
+
+  # Add one database for the demo
+  postgres-auth:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: sandbox_auth
+      POSTGRES_PASSWORD: adedeji1127
+    volumes:
+      - ./data/auth:/var/lib/postgresql/data
+    networks: [sandbox-net]
+
+networks:
+  sandbox-net:
+    driver: bridge
