@@ -112,7 +112,7 @@ jobs:
       - name: Build & Push Frontend
         uses: docker/build-push-action@v5
         with:
-          context: ./frontend
-          file: ./frontend/Dockerfile
+          context: ./devops-cloundsandbox-frontend
+          file: ./devops-cloundsandbox-frontend/Dockerfile
           push: true
           tags: ${{ secrets.DOCKER_USERNAME }}/sandbox-frontend:latest

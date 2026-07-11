@@ -110,7 +110,7 @@ services:
 
   frontend-ui:
     build:
-      context: ./frontend
+      context: ./devops-cloundsandbox-frontend
       dockerfile: Dockerfile
     container_name: frontend-ui
     ports:
