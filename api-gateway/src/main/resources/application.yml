@@ -1,5 +1,5 @@
 server:
-  port: 8080
+  port: ${PORT:8080}
 
 spring:
   application:
@@ -8,9 +8,26 @@ spring:
     gateway:
       discovery:
         locator:
-          enabled: true # Allows us to route via Eureka service names
+          enabled: true
+      globalcors:
+        cors-configurations:
+          '[/**]':
+            allowedOrigins:
+              - "http://localhost:5173"
+              - "http://localhost:3000"
+              - "https://dev-ops-cloud-sand-box.vercel.app"
+            allowedMethods:
+              - GET
+              - POST
+              - PUT
+              - DELETE
+              - OPTIONS
+              - PATCH
+            allowedHeaders:
+              - "*"
+            allowCredentials: true
+            maxAge: 3600
       routes:
-        # Auth Service Route
         - id: auth-service
           uri: lb://auth-service
           predicates:
@@ -18,7 +35,6 @@ spring:
           filters:
             - StripPrefix=1
 
-        # 1. Protected Container Service Endpoints
         - id: container-sim-service-api
           uri: lb://container-sim-service
           predicates:
@@ -26,7 +42,6 @@ spring:
           filters:
             - AuthenticationFilter
 
-        # 2. Public Container Service API Docs (Bypasses Auth Filter)
         - id: container-sim-service-docs
           uri: lb://container-sim-service
           predicates:
@@ -41,7 +56,6 @@ spring:
           filters:
             - AuthenticationFilter
 
-# Swagger UI Configuration
 springdoc:
   swagger-ui:
     path: /swagger-ui.html
@@ -56,8 +70,7 @@ springdoc:
 eureka:
   client:
     service-url:
-      defaultZone: http://localhost:8761/eureka/
+      defaultZone: ${EUREKA_URI:http://localhost:8761/eureka/}
 
-# JWT Secret (Must match Auth Service)
 jwt:
-  secret: 1zcbHpUZkLDels67-SUEGSSt_nWdQpc_2hamlL5LJwa
+  secret: ${JWT_SECRET:1zcbHpUZkLDels67-SUEGSSt_nWdQpc_2hamlL5LJwa}
