@@ -1,35 +1,42 @@
 package com.cloudsandbox.gateway.config;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.gateway.route.RouteLocator;
 import org.springframework.cloud.gateway.route.builder.RouteLocatorBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-/**
- * Declarative route table. Each downstream service is reached via its
- * Eureka-registered logical name ("lb://<service-name>"), so the Gateway
- * never needs to know a physical host/port.
- *
- * NOTE: paths are forwarded AS-IS (no stripPrefix) because each controller
- * owns its full versioned path internally (e.g. @RequestMapping("/api/v1/auth")
- * on AuthController) rather than expecting the Gateway to strip a prefix.
- */
 @Configuration
 public class RouteConfig {
+
+    @Value("${AUTH_SERVICE_URL:http://localhost:8081}")
+    private String authServiceUrl;
+
+    @Value("${CONTAINER_SIM_SERVICE_URL:http://localhost:8082}")
+    private String containerSimServiceUrl;
+
+    @Value("${MANIFEST_SERVICE_URL:http://localhost:8083}")
+    private String manifestServiceUrl;
+
+    @Value("${LOADBALANCER_SIM_SERVICE_URL:http://localhost:8084}")
+    private String loadbalancerSimServiceUrl;
+
+    @Value("${PROGRESS_SERVICE_URL:http://localhost:8085}")
+    private String progressServiceUrl;
 
     @Bean
     public RouteLocator routes(RouteLocatorBuilder builder) {
         return builder.routes()
                 .route("auth-service", r -> r.path("/api/v1/auth/**")
-                        .uri("lb://auth-service"))
+                        .uri(authServiceUrl))
                 .route("container-sim-service", r -> r.path("/api/v1/containers/**")
-                        .uri("lb://container-sim-service"))
+                        .uri(containerSimServiceUrl))
                 .route("manifest-service", r -> r.path("/api/v1/manifests/**")
-                        .uri("lb://manifest-service"))
+                        .uri(manifestServiceUrl))
                 .route("loadbalancer-sim-service", r -> r.path("/api/v1/loadbalancers/**")
-                        .uri("lb://loadbalancer-sim-service"))
+                        .uri(loadbalancerSimServiceUrl))
                 .route("progress-service", r -> r.path("/api/v1/progress/**")
-                        .uri("lb://progress-service"))
+                        .uri(progressServiceUrl))
                 .build();
     }
 }
