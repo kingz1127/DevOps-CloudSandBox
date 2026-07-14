@@ -8,6 +8,6 @@ import java.util.Optional;
 public interface SimContainerRepository extends JpaRepository<SimContainer, String> {
     List<SimContainer> findByUserId(String userId);
 
-
+    Optional<SimContainer> findByContainerIdAndUserId(String containerId, String userId);
     Optional<SimContainer> findByIdAndUserId(String id, String userId);
 }

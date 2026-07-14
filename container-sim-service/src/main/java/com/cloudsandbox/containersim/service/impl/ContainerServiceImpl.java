@@ -1,3 +1,77 @@
+//package com.cloudsandbox.containersim.service.impl;
+//
+//import com.cloudsandbox.containersim.dto.request.CreateContainerRequest;
+//import com.cloudsandbox.containersim.dto.response.ContainerResponse;
+//import com.cloudsandbox.containersim.entity.*;
+//import com.cloudsandbox.containersim.repository.SimContainerRepository;
+//import com.cloudsandbox.containersim.service.ContainerService;
+//import lombok.RequiredArgsConstructor;
+//import org.springframework.stereotype.Service;
+//import java.util.*;
+//import java.util.stream.Collectors;
+//
+//@Service
+//@RequiredArgsConstructor
+//public class ContainerServiceImpl implements ContainerService {
+//
+//    private final SimContainerRepository repository;
+//
+//    @Override
+//    public ContainerResponse createContainer(String userId, CreateContainerRequest request) {
+//        // Mocking Docker simulation
+//        String mockContainerId = UUID.randomUUID().toString().replace("-", "").substring(0, 12);
+//        String mockIp = "172.17.0." + (new Random().nextInt(250) + 2);
+//
+//        SimContainer container = SimContainer.builder()
+//                .userId(userId)
+//                .name(request.getName())
+//                .imageName(request.getImage())
+//                .containerId(mockContainerId)
+//                .internalIp(mockIp)
+//                .status(ContainerStatus.RUNNING)
+//                .build();
+//
+//        return mapToResponse(repository.save(container));
+//    }
+//
+//    @Override
+//    public List<ContainerResponse> getContainersByUser(String userId) {
+//        return repository.findByUserId(userId).stream()
+//                .map(this::mapToResponse)
+//                .collect(Collectors.toList());
+//    }
+//
+//    @Override
+//    public ContainerResponse stopContainer(String userId, String id) {
+//        SimContainer container = repository.findByIdAndUserId(id, userId)
+//                .orElseThrow(() -> new RuntimeException("Container not found or access denied"));
+//
+//        container.setStatus(ContainerStatus.STOPPED);
+//
+//        return mapToResponse(repository.save(container));
+//    }
+//
+//    @Override
+//    public void deleteContainer(String userId, String id) {
+//        SimContainer container = repository.findByIdAndUserId(id, userId)
+//                .orElseThrow(() -> new RuntimeException("Container not found or access denied"));
+//        repository.delete(container);
+//    }
+//
+//    private ContainerResponse mapToResponse(SimContainer entity) {
+//        ContainerResponse res = new ContainerResponse();
+//        res.setId(entity.getId());
+//        res.setName(entity.getName());
+//        res.setImageName(entity.getImageName());
+//        res.setContainerId(entity.getContainerId());
+//        res.setInternalIp(entity.getInternalIp());
+//        res.setStatus(entity.getStatus());
+//        res.setCreatedAt(entity.getCreatedAt());
+//        return res;
+//    }
+//}
+
+
 package com.cloudsandbox.containersim.service.impl;
 
 import com.cloudsandbox.containersim.dto.request.CreateContainerRequest;
@@ -18,7 +92,6 @@ public class ContainerServiceImpl implements ContainerService {
 
     @Override
     public ContainerResponse createContainer(String userId, CreateContainerRequest request) {
-        // Mocking Docker simulation
         String mockContainerId = UUID.randomUUID().toString().replace("-", "").substring(0, 12);
         String mockIp = "172.17.0." + (new Random().nextInt(250) + 2);
 
@@ -43,7 +116,9 @@ public class ContainerServiceImpl implements ContainerService {
 
     @Override
     public ContainerResponse stopContainer(String userId, String id) {
-        SimContainer container = repository.findByIdAndUserId(id, userId)
+        // Changed: lookup by containerId (the Docker-style hash shown to users),
+        // not the database primary key, since that's what users actually type.
+        SimContainer container = repository.findByContainerIdAndUserId(id, userId)
                 .orElseThrow(() -> new RuntimeException("Container not found or access denied"));
 
         container.setStatus(ContainerStatus.STOPPED);
@@ -53,7 +128,8 @@ public class ContainerServiceImpl implements ContainerService {
 
     @Override
     public void deleteContainer(String userId, String id) {
-        SimContainer container = repository.findByIdAndUserId(id, userId)
+        // Same fix here
+        SimContainer container = repository.findByContainerIdAndUserId(id, userId)
                 .orElseThrow(() -> new RuntimeException("Container not found or access denied"));
         repository.delete(container);
     }
