@@ -311,6 +311,7 @@ const TerminalPage = () => {
       xtermRef.current?.writeln('  docker run --name [name] --image [image]  - Start a virtual container');
       xtermRef.current?.writeln('  docker ps                                - List running containers');
       xtermRef.current?.writeln('  docker stop [container_id]               - Stop a container');
+      xtermRef.current?.writeln('  docker start [container_id]              - Resume a stopped container');
       xtermRef.current?.writeln('  docker rm [container_id]                 - Delete a container');
       xtermRef.current?.writeln('');
       xtermRef.current?.writeln('Kubernetes Commands:');
@@ -381,6 +382,22 @@ const TerminalPage = () => {
           xtermRef.current?.writeln('\x1b[1;31mERROR:\x1b[0m ID not found.');
         }
       }
+
+      else if (action === 'start') {
+  const targetId = parts[2];
+  if (!targetId) {
+    xtermRef.current?.writeln('Usage: docker start [container_id]');
+    return;
+  }
+  try {
+    await containerService.start(targetId);
+    xtermRef.current?.writeln(`Container ${targetId} starting...`);
+    xtermRef.current?.writeln(`\x1b[1;32mOK:\x1b[0m Container running.`);
+    await progressService.submitProgress('Docker Lab: Start Container', 100);
+  } catch (e) {
+    xtermRef.current?.writeln('\x1b[1;31mERROR:\x1b[0m ID not found.');
+  }
+}
 
       // NEW: docker rm
       else if (action === 'rm') {

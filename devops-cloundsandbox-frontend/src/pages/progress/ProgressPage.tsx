@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { progressService, type StudentProgress,  } from '../../api/services/progress.service';
-import { Award, CheckCircle, Clock, BookOpen, BarChart3, Trophy } from 'lucide-react';
+import { Award, CheckCircle, BookOpen, BarChart3, Trophy } from 'lucide-react';
 import { useAuth } from '../../store/AuthContext';
 
 const ProgressPage = () => {
@@ -22,7 +22,6 @@ const ProgressPage = () => {
     fetchProgress();
   }, []);
 
-  // Professional metric calculations
   const totalCompleted = history.filter(p => p.completed).length;
   const averageScore = history.length > 0 
     ? Math.round(history.reduce((acc, curr) => acc + curr.score, 0) / history.length) 
@@ -36,10 +35,9 @@ const ProgressPage = () => {
       </header>
 
       {/* Top Level Metrics */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-12">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
         <MetricCard title="Overall Score" value={`${averageScore}%`} icon={<BarChart3 className="text-blue-500" />} />
         <MetricCard title="Modules Done" value={totalCompleted} icon={<CheckCircle className="text-green-500" />} />
-        <MetricCard title="Learning Hours" value="12.5h" icon={<Clock className="text-amber-500" />} />
         <MetricCard title="Rank" value="DevOps Novice" icon={<Trophy className="text-purple-500" />} />
       </div>
 
@@ -99,9 +97,10 @@ const ProgressPage = () => {
             </h3>
             <div className="grid grid-cols-2 gap-4">
               <Badge icon="🐳" label="Docker Pilot" active={history.some(h => h.moduleName.includes("Docker"))} />
-              <Badge icon="☸️" label="K8s Captain" active={history.some(h => h.moduleName.includes("K8s"))} />
+              <Badge icon="☸️" label="K8s Captain" active={history.some(h => h.moduleName.includes("Kubernetes"))} />
               <Badge icon="📄" label="YAML Master" active={history.some(h => h.moduleName.includes("YAML"))} />
               <Badge icon="🛡️" label="Security Pro" active={false} />
+              {/* Security Pro: reserved for a future security-focused feature */}
             </div>
           </div>
 

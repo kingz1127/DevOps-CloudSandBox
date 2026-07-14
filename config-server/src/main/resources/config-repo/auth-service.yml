@@ -6,6 +6,22 @@ spring:
   jpa:
     hibernate:
       ddl-auto: update
+
+  app:
+    frontend:
+      url: ${FRONTEND_URL:http://localhost:5173} # Defaults to localhost if not set
+
+    mail:
+      host: smtp-relay.brevo.com
+      port: 2525
+      username: ${BREVO_USER}
+      password: ${BREVO_PASSWORD}
+      properties:
+        mail:
+          smtp:
+            auth: true
+            starttls:
+              enable: true
 jwt:
   secret: 1zcbHpUZkLDels67-SUEGSSt_nWdQpc_2hamlL5LJwa
   expiration: 86400000

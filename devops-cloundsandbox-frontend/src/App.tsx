@@ -6,13 +6,15 @@ import DashboardPage from './pages/dashboard/DashboardPage';
 import TerminalPage from './pages/terminal/TerminalPage';
 import LoginPage from './pages/auth/LoginPage';
 import RegisterPage from './pages/auth/RegisterPage';
-import YamlValidatorPage from './pages/validator/YamlValidatorPage';
 import ProgressPage from './pages/progress/ProgressPage';
 import LandingNavbar from './components/layout/LandingNavbar';
 import Home from './pages/public/Home';
 import Guide from './pages/public/Guide';
 import About from './pages/public/About';
 import LoadBalancerPage from './pages/lb/LoadBalancerPage';
+import ForgotPassword from './pages/auth/ForgotPassword';
+import YamlValidatorPage from './pages/validator/YamlValidatorPage';
+import ResetPassword from './pages/auth/ResetPassword';
 
 const AuthenticatedLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { isAuthenticated, isLoading } = useAuth();
@@ -49,6 +51,9 @@ function App() {
         <Route path="/about" element={<><LandingNavbar /><About /></>} />
         <Route path="/guide" element={<><LandingNavbar /><Guide /></>} />
         <Route path="/login" element={<><LandingNavbar /><LoginPage /></>} />
+        <Route path="/forgot-password" element={<><LandingNavbar /><ForgotPassword/></>} />
+        
+    <Route path="/reset-password" element={<><LandingNavbar /><ResetPassword/></>} />
         <Route path="/register" element={<><LandingNavbar /><RegisterPage /></>} />
         
         {/* Protected routes */}

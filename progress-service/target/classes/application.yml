@@ -1,5 +1,5 @@
 server:
-  port: 8085
+  port: ${PORT:8085}
 
 spring:
   application:
@@ -8,10 +8,16 @@ spring:
     import: "optional:configserver:http://config-server:8888"
 
   datasource:
-    url: jdbc:postgresql://postgres-progress:5432/sandbox_progress
-    username: postgres
-    password: adedeji1127
+    url: jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_NAME}?sslmode=require
+    username: ${DB_USER}
+    password: ${DB_PASSWORD}
     driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 3
+      minimum-idle: 1
+      connection-timeout: 20000
+      idle-timeout: 30000
+
 
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
@@ -22,7 +28,7 @@ spring:
 eureka:
   client:
     service-url:
-      defaultZone: http://discovery-service:8761/eureka/
+      defaultZone: ${EUREKA_URI:http://localhost:8761/eureka}
   instance:
     prefer-ip-address: true
 

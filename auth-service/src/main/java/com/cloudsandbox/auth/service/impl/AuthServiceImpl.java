@@ -1,21 +1,17 @@
 package com.cloudsandbox.auth.service.impl;
 
-import com.cloudsandbox.auth.dto.request.LoginRequest;
-import com.cloudsandbox.auth.dto.request.RefreshRequest;
-import com.cloudsandbox.auth.dto.request.RegisterRequest;
-import com.cloudsandbox.auth.dto.response.AuthResponse;
-import com.cloudsandbox.auth.dto.response.UserResponse;
-import com.cloudsandbox.auth.entity.RefreshToken;
-import com.cloudsandbox.auth.entity.Role;
-import com.cloudsandbox.auth.entity.User;
-import com.cloudsandbox.auth.exception.InvalidCredentialsException;
-import com.cloudsandbox.auth.exception.InvalidTokenException;
+import com.cloudsandbox.auth.dto.request.*;
+import com.cloudsandbox.auth.dto.response.*;
+import com.cloudsandbox.auth.entity.*;
+import com.cloudsandbox.auth.exception.*;
 import com.cloudsandbox.auth.mapper.UserMapper;
-import com.cloudsandbox.auth.repository.RefreshTokenRepository;
-import com.cloudsandbox.auth.repository.UserRepository;
+import com.cloudsandbox.auth.repository.*;
 import com.cloudsandbox.auth.security.JwtService;
 import com.cloudsandbox.auth.service.AuthService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value; // Added
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,18 +19,25 @@ import org.springframework.transaction.annotation.Transactional;
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.util.Base64;
+import java.util.UUID;
 
 @Service
-@RequiredArgsConstructor // Simplifies constructor injection
+@RequiredArgsConstructor
 public class AuthServiceImpl implements AuthService {
 
     private static final long REFRESH_TOKEN_EXPIRY_DAYS = 7;
 
+    // Inject this from your properties/environment variables
+    @Value("${app.frontend.url:http://localhost:5173}")
+    private String frontendUrl;
+
     private final UserRepository userRepository;
-    private final RefreshTokenRepository refreshTokenRepository;
+    private final RefreshTokenRepository refreshTokenRepository; // Uncommented this
+    private final PasswordResetTokenRepository tokenRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final UserMapper userMapper;
+    private final JavaMailSender mailSender;
 
     @Override
     @Transactional
@@ -51,8 +54,6 @@ public class AuthServiceImpl implements AuthService {
                 .build();
 
         User savedUser = userRepository.saveAndFlush(user);
-
-        // Pass the saved user that definitely contains the generated ID string
         return buildAuthResponse(savedUser);
     }
 
@@ -70,6 +71,59 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
+    @Transactional
+    public void forgotPassword(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        tokenRepository.deleteByUserEmail(email);
+
+        String token = UUID.randomUUID().toString();
+        PasswordResetToken resetToken = PasswordResetToken.builder()
+                .token(token)
+                .userEmail(email)
+                .expiryDate(LocalDateTime.now().plusMinutes(15))
+                .build();
+
+        tokenRepository.save(resetToken);
+        sendResetEmail(email, token);
+    }
+
+    @Override
+    @Transactional
+    public void resetPassword(String token, String newPassword) {
+        PasswordResetToken resetToken = tokenRepository.findByToken(token)
+                .orElseThrow(() -> new InvalidTokenException("Invalid or expired reset link"));
+
+        if (resetToken.getExpiryDate().isBefore(LocalDateTime.now())) {
+            tokenRepository.delete(resetToken);
+            throw new InvalidTokenException("Reset link has expired");
+        }
+
+        User user = userRepository.findByEmail(resetToken.getUserEmail())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        user.setPasswordHash(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
+        tokenRepository.delete(resetToken);
+    }
+
+    private void sendResetEmail(String email, String token) {
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setFrom("osunyingboadedeji1@gmail.com");
+        message.setTo(email);
+        message.setSubject("CloudSandbox - Password Reset Request");
+
+        // DYNAMIC LINK: Uses localhost in dev and Vercel in prod
+        String resetLink = frontendUrl + "/reset-password?token=" + token;
+
+        message.setText("Hello,\n\nYou requested to reset your password. Click the link below to proceed:\n\n"
+                + resetLink + "\n\nThis link is valid for 15 minutes.");
+
+        mailSender.send(message);
+    }
+
+    @Override
     public AuthResponse refresh(RefreshRequest request) {
         return refresh(request.refreshToken());
     }
@@ -84,8 +138,6 @@ public class AuthServiceImpl implements AuthService {
             throw new InvalidTokenException("Refresh token expired or revoked");
         }
 
-        // This will now work because stored.getUserId() returns a String
-        // and userRepository.findById() expects a String
         User user = userRepository.findById(stored.getUserId())
                 .orElseThrow(() -> new InvalidTokenException("User no longer exists"));
 
@@ -94,7 +146,6 @@ public class AuthServiceImpl implements AuthService {
 
         return buildAuthResponse(user);
     }
-
 
     @Override
     public UserResponse getCurrentUser(String username) {
@@ -113,7 +164,6 @@ public class AuthServiceImpl implements AuthService {
     }
 
     private AuthResponse buildAuthResponse(User user) {
-        // Safe null checks before generating the token properties
         String userId = user.getId() != null ? user.getId() : "";
         String username = user.getUsername() != null ? user.getUsername() : "unknown";
         String roleName = user.getRole() != null ? user.getRole().name() : "USER";
