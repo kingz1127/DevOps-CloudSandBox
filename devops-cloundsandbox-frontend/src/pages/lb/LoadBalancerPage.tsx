@@ -25,28 +25,23 @@ const LoadBalancerPage = () => {
     fetchRealData();
   }, []);
 
-  const sendTraffic = async () => {
-    if (containers.length === 0) return;
+const sendTraffic = async () => {
+  const runningContainers = containers.filter(c => c.status === 'RUNNING');
+  if (runningContainers.length === 0) return;
 
-    setActiveTraffic(true);
-    
-    // 2. Extract the REAL virtual IPs from your active containers
-    const realIps = containers.map(c => c.internalIp);
+  setActiveTraffic(true);
 
-    try {
-      // 3. Send the REAL IPs to your Java LBEngine
-      const result = await lbService.hitTraffic(realIps);
-      
-      // result.routingDecision looks like "Traffic routed to node: 172.17.0.X"
-      setLastRoute(result.routingDecision); 
-      
-      // Reset animation
-      setTimeout(() => setActiveTraffic(false), 800);
-    } catch (e) {
-      setActiveTraffic(false);
-      console.error("LB Simulation failed", e);
-    }
-  };
+  const realIps = runningContainers.map(c => c.internalIp);
+
+  try {
+    const result = await lbService.hitTraffic(realIps);
+    setLastRoute(result.routingDecision);
+    setTimeout(() => setActiveTraffic(false), 800);
+  } catch (e) {
+    setActiveTraffic(false);
+    console.error("LB Simulation failed", e);
+  }
+};
 
   if (isLoading) {
     return (
@@ -65,15 +60,15 @@ const LoadBalancerPage = () => {
         <p className="text-slate-500">Real-time traffic distribution across your simulated cluster.</p>
       </header>
 
-      {containers.length === 0 ? (
-        <div className="bg-amber-50 border border-amber-200 p-6 rounded-2xl flex items-center gap-4 text-amber-800">
-          <AlertCircle />
-          <div>
-            <p className="font-bold">No Backend Nodes Detected</p>
-            <p className="text-sm">Go to the Terminal and run some containers (e.g. <code>docker run</code>) to start balancing traffic.</p>
-          </div>
-        </div>
-      ) : (
+      {containers.filter(c => c.status === 'RUNNING').length === 0 ? (
+  <div className="bg-amber-50 border border-amber-200 p-6 rounded-2xl flex items-center gap-4 text-amber-800">
+    <AlertCircle />
+    <div>
+      <p className="font-bold">No Running Backend Nodes</p>
+      <p className="text-sm">Go to the Terminal and run some containers (e.g. <code>docker run</code>) to start balancing traffic. Stopped containers won't receive traffic.</p>
+    </div>
+  </div>
+) : (
         <div className="grid grid-cols-1 gap-12">
           <div className="bg-white border border-slate-200 rounded-2xl p-8 shadow-sm">
              <div className="flex justify-between items-center mb-8">
@@ -86,7 +81,7 @@ const LoadBalancerPage = () => {
                 </div>
                 <button 
                   onClick={sendTraffic}
-                  disabled={activeTraffic}
+                  disabled={activeTraffic || containers.filter(c => c.status === 'RUNNING').length === 0}
                   className="bg-blue-600 text-white px-6 py-2 rounded-xl font-bold flex items-center gap-2 hover:bg-blue-500 transition-all disabled:opacity-50"
                 >
                   <Zap size={16} className={activeTraffic ? "animate-pulse" : ""} />
