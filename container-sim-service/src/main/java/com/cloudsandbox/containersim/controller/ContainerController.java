@@ -104,6 +104,7 @@ public class ContainerController {
         return ResponseEntity.ok(containerService.createContainer(userId, request));
     }
 
+
     @Operation(
             summary = "List all containers for the current user",
             description = "Returns every container (running or stopped) owned by the authenticated user."
@@ -139,6 +140,26 @@ public class ContainerController {
             @Parameter(description = "Container ID to stop", required = true)
             @PathVariable String id) {
         return ResponseEntity.ok(containerService.stopContainer(userId, id));
+    }
+
+    @Operation(
+            summary = "Start a stopped container",
+            description = "Resumes a previously stopped container, setting its status back to RUNNING."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Container started successfully",
+                    content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            schema = @Schema(implementation = ContainerResponse.class))),
+            @ApiResponse(responseCode = "404", description = "Container not found"),
+            @ApiResponse(responseCode = "401", description = "Missing or invalid authentication")
+    })
+    @PostMapping("/{id}/start")
+    public ResponseEntity<ContainerResponse> startContainer(
+            @Parameter(description = "ID of the authenticated user", required = true)
+            @RequestHeader("X-User-Id") String userId,
+            @Parameter(description = "Container ID to start", required = true)
+            @PathVariable String id) {
+        return ResponseEntity.ok(containerService.startContainer(userId, id));
     }
 
     @Operation(

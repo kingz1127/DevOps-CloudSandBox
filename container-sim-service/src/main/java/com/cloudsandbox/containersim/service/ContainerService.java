@@ -9,4 +9,5 @@ public interface ContainerService {
     List<ContainerResponse> getContainersByUser(String userId);
     ContainerResponse stopContainer(String userId, String id);
     void deleteContainer(String userId, String id);
+    ContainerResponse startContainer(String userId, String id);
 }
