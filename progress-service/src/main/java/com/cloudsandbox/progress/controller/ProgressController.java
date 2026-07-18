@@ -4,6 +4,7 @@ import com.cloudsandbox.progress.entity.StudentProgress;
 import com.cloudsandbox.progress.repository.StudentProgressRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
@@ -22,5 +23,14 @@ public class ProgressController {
     public ResponseEntity<StudentProgress> submitScore(@RequestHeader("X-User-Id") String userId, @RequestBody StudentProgress progress) {
         progress.setUserId(userId);
         return ResponseEntity.ok(repository.save(progress));
+    }
+
+    @DeleteMapping("/by-container/{containerId}")
+    @Transactional
+    public ResponseEntity<Void> deleteByContainer(
+            @RequestHeader("X-User-Id") String userId,
+            @PathVariable String containerId) {
+        repository.deleteByUserIdAndRelatedContainerId(userId, containerId);
+        return ResponseEntity.noContent().build();
     }
 }

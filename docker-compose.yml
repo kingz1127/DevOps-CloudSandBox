@@ -1,208 +1,81 @@
-#services:
-#  discovery-service:
-#    build:
-#      context: .
-#      args:
-#        SERVICE_NAME: discovery-service
-#    container_name: discovery-service
-#    ports:
-#      - "8761:8761"
-#    networks:
-#      - sandbox-net
-#
-#  config-server:
-#    build:
-#      context: .
-#      args:
-#        SERVICE_NAME: config-server
-#    container_name: config-server
-#    ports:
-#      - "8888:8888"
-#    environment:
-#      - SPRING_PROFILES_ACTIVE=native
-#      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-service:8761/eureka/
-#    depends_on:
-#      - discovery-service
-#    networks:
-#      - sandbox-net
-#
-#  auth-service:
-#    build:
-#      context: .
-#      args:
-#        SERVICE_NAME: auth-service
-#    container_name: auth-service
-#    environment:
-#      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-auth:5432/sandbox_auth
-#      - SPRING_DATASOURCE_USERNAME=postgres
-#      - SPRING_DATASOURCE_PASSWORD=adedeji1127
-#      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-service:8761/eureka/
-#      - SPRING_CONFIG_IMPORT=optional:configserver:http://config-server:8888
-#      - BREVO_USER=${BREVO_USER} # Pulls from your .env file
-#      - BREVO_PASSWORD=${BREVO_PASS}
-#    depends_on:
-#      - discovery-service
-#      - config-server
-#      - postgres-auth
-#    networks:
-#      - sandbox-net
-#
-#  container-sim-service:
-#    build:
-#      context: .
-#      args:
-#        SERVICE_NAME: container-sim-service
-#    container_name: container-sim-service
-#    environment:
-#      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-containers:5432/sandbox_containers
-#      - SPRING_DATASOURCE_USERNAME=postgres
-#      - SPRING_DATASOURCE_PASSWORD=adedeji1127
-#      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-service:8761/eureka/
-#      - SPRING_CONFIG_IMPORT=optional:configserver:http://config-server:8888
-#    depends_on:
-#      - discovery-service
-#      - config-server
-#      - postgres-containers
-#    networks:
-#      - sandbox-net
-#
-#  api-gateway:
-#    build:
-#      context: .
-#      args:
-#        SERVICE_NAME: api-gateway
-#    container_name: api-gateway
-#    ports:
-#      - "8080:8080"
-#    environment:
-#      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-service:8761/eureka/
-#      - SPRING_CONFIG_IMPORT=optional:configserver:http://config-server:8888
-#    depends_on:
-#      - discovery-service
-#      - config-server
-#    networks:
-#      - sandbox-net
-#
-#  manifest-service:
-#    build:
-#      context: .
-#      args:
-#        SERVICE_NAME: manifest-service
-#    container_name: manifest-service
-#    environment:
-#      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-manifest:5432/sandbox_manifest
-#      - SPRING_DATASOURCE_USERNAME=postgres
-#      - SPRING_DATASOURCE_PASSWORD=adedeji1127
-#      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-service:8761/eureka/
-#      - SPRING_CONFIG_IMPORT=optional:configserver:http://config-server:8888
-#    depends_on:
-#      - discovery-service
-#      - config-server
-#      - postgres-manifest
-#    networks:
-#      - sandbox-net
-#
-#  progress-service:
-#    build:
-#      context: .
-#      args:
-#        SERVICE_NAME: progress-service
-#    container_name: progress-service
-#    environment:
-#      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-progress:5432/sandbox_progress
-#      - SPRING_DATASOURCE_USERNAME=postgres
-#      - SPRING_DATASOURCE_PASSWORD=adedeji1127
-#      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-service:8761/eureka/
-#      - SPRING_CONFIG_IMPORT=optional:configserver:http://config-server:8888
-#    depends_on:
-#      - discovery-service
-#      - config-server
-#      - postgres-progress
-#    networks:
-#      - sandbox-net
-#
-#  loadbalancer-sim-service:
-#    build:
-#      context: .
-#      args:
-#        SERVICE_NAME: loadbalancer-sim-service
-#    container_name: loadbalancer-sim-service
-#    environment:
-#      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-service:8761/eureka/
-#      - SPRING_CONFIG_IMPORT=optional:configserver:http://config-server:8888
-#    depends_on:
-#      - discovery-service
-#      - config-server
-#    networks:
-#      - sandbox-net
-#
-#  frontend-ui:
-#    build:
-#      context: ./devops-cloundsandbox-frontend
-#      dockerfile: Dockerfile
-#    container_name: frontend-ui
-#    ports:
-#      - "5173:80"
-#    networks:
-#      - sandbox-net
-#    depends_on:
-#      - api-gateway
-#
-#  # --- DATABASES ---
-#  postgres-auth:
-#    image: postgres:15-alpine
-#    container_name: postgres-auth
-#    environment:
-#      POSTGRES_DB: sandbox_auth
-#      POSTGRES_USER: postgres
-#      POSTGRES_PASSWORD: adedeji1127
-#    volumes:
-#      - ./data/auth:/var/lib/postgresql/data
-#    networks:
-#      - sandbox-net
-#
-#  postgres-containers:
-#    image: postgres:15-alpine
-#    container_name: postgres-containers
-#    environment:
-#      POSTGRES_DB: sandbox_containers
-#      POSTGRES_USER: postgres
-#      POSTGRES_PASSWORD: adedeji1127
-#    volumes:
-#      - ./data/containers:/var/lib/postgresql/data
-#    networks:
-#      - sandbox-net
-#
-#  postgres-progress:
-#    image: postgres:15-alpine
-#    container_name: postgres-progress
-#    environment:
-#      POSTGRES_DB: sandbox_progress
-#      POSTGRES_USER: postgres
-#      POSTGRES_PASSWORD: adedeji1127
-#    volumes:
-#      - ./data/progress:/var/lib/postgresql/data
-#    networks:
-#      - sandbox-net
-#
-#  postgres-manifest:
-#    image: postgres:15-alpine
-#    container_name: postgres-manifest
-#    environment:
-#      POSTGRES_DB: sandbox_manifest
-#      POSTGRES_USER: postgres
-#      POSTGRES_PASSWORD: adedeji1127
-#    volumes:
-#      - ./data/manifest:/var/lib/postgresql/data
-#    networks:
-#      - sandbox-net
-#
-#networks:
-#  sandbox-net:
-#    driver: bridge
-
 
 services:
+  # --- DATABASES ---
+  postgres-auth:
+    image: postgres:15-alpine
+    container_name: postgres-auth
+    environment:
+      POSTGRES_DB: sandbox_auth
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: adedeji1127
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./data/auth:/var/lib/postgresql/data
+    networks:
+      - sandbox-net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+  postgres-containers:
+    image: postgres:15-alpine
+    container_name: postgres-containers
+    environment:
+      POSTGRES_DB: sandbox_containers
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: adedeji1127
+    volumes:
+      - ./data/containers:/var/lib/postgresql/data
+    networks:
+      - sandbox-net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+  postgres-progress:
+    image: postgres:15-alpine
+    container_name: postgres-progress
+    environment:
+      POSTGRES_DB: sandbox_progress
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: adedeji1127
+    volumes:
+      - ./data/progress:/var/lib/postgresql/data
+    networks:
+      - sandbox-net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+  postgres-manifest:
+    image: postgres:15-alpine
+    container_name: postgres-manifest
+    environment:
+      POSTGRES_DB: sandbox_manifest
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: adedeji1127
+    volumes:
+      - ./data/manifest:/var/lib/postgresql/data
+    networks:
+      - sandbox-net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+  # --- SERVICES ---
   discovery-service:
     build:
       context: .
@@ -211,8 +84,16 @@ services:
     container_name: discovery-service
     ports:
       - "8761:8761"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
     networks:
       - sandbox-net
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8761/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 10
+    restart: unless-stopped
 
   config-server:
     build:
@@ -225,10 +106,18 @@ services:
     environment:
       - SPRING_PROFILES_ACTIVE=native
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-service:8761/eureka/
+      - EUREKA_URI=http://discovery-service:8761/eureka/
     depends_on:
-      - discovery-service
+      discovery-service:
+        condition: service_healthy
     networks:
       - sandbox-net
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8888/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 10
+    restart: unless-stopped
 
   auth-service:
     build:
@@ -236,20 +125,48 @@ services:
       args:
         SERVICE_NAME: auth-service
     container_name: auth-service
+    ports:
+      - "8081:8081"
     environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      # Database
       - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-auth:5432/sandbox_auth
       - SPRING_DATASOURCE_USERNAME=postgres
       - SPRING_DATASOURCE_PASSWORD=adedeji1127
+      # JWT
+      - JWT_SECRET=1zcbHpUZkLDels67-SUEGSSt_nWdQpc_2hamlL5LJwa
+      - JWT_EXPIRATION=86400000
+      - JWT_REFRESH_EXPIRATION=604800000
+      # Eureka
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-service:8761/eureka/
+      # Config Server
+      - CONFIG_SERVER_URI=http://config-server:8888
       - SPRING_CONFIG_IMPORT=optional:configserver:http://config-server:8888
+      # Mail
       - BREVO_USER=${BREVO_USER}
       - BREVO_PASSWORD=${BREVO_PASS}
+      # Server
+      - SERVER_PORT=8081
+      # Frontend
+      - FRONTEND_URL=http://localhost:5173
+      # Logging
+      - LOGGING_LEVEL_COM_CLOUDSANDBOX=DEBUG
     depends_on:
-      - discovery-service
-      - config-server
-      - postgres-auth
+      postgres-auth:
+        condition: service_healthy
+      discovery-service:
+        condition: service_healthy
+      config-server:
+        condition: service_healthy
     networks:
       - sandbox-net
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8081/actuator/health" ]
+      interval: 30s
+      timeout: 10s
+      retries: 10
+      start_period: 60s  # Add this line
+    restart: unless-stopped
 
   container-sim-service:
     build:
@@ -264,30 +181,12 @@ services:
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-service:8761/eureka/
       - SPRING_CONFIG_IMPORT=optional:configserver:http://config-server:8888
     depends_on:
-      - discovery-service
-      - config-server
-      - postgres-containers
-    networks:
-      - sandbox-net
-
-  api-gateway:
-    build:
-      context: .
-      args:
-        SERVICE_NAME: api-gateway
-    container_name: api-gateway
-    ports:
-      - "8080:8080"
-    environment:
-      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-service:8761/eureka/
-      - SPRING_CONFIG_IMPORT=optional:configserver:http://config-server:8888
-      # FIX: Add these environment variables
-      - AUTH_SERVICE_URL=http://auth-service:8081
-      - CONTAINER_SIM_SERVICE_URL=http://container-sim-service:8082
-      - PROGRESS_SERVICE_URL=http://progress-service:8085
-    depends_on:
-      - discovery-service
-      - config-server
+      postgres-containers:
+        condition: service_healthy
+      discovery-service:
+        condition: service_healthy
+      config-server:
+        condition: service_healthy
     networks:
       - sandbox-net
 
@@ -304,9 +203,12 @@ services:
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-service:8761/eureka/
       - SPRING_CONFIG_IMPORT=optional:configserver:http://config-server:8888
     depends_on:
-      - discovery-service
-      - config-server
-      - postgres-manifest
+      postgres-manifest:
+        condition: service_healthy
+      discovery-service:
+        condition: service_healthy
+      config-server:
+        condition: service_healthy
     networks:
       - sandbox-net
 
@@ -323,9 +225,12 @@ services:
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-service:8761/eureka/
       - SPRING_CONFIG_IMPORT=optional:configserver:http://config-server:8888
     depends_on:
-      - discovery-service
-      - config-server
-      - postgres-progress
+      postgres-progress:
+        condition: service_healthy
+      discovery-service:
+        condition: service_healthy
+      config-server:
+        condition: service_healthy
     networks:
       - sandbox-net
 
@@ -335,14 +240,55 @@ services:
       args:
         SERVICE_NAME: loadbalancer-sim-service
     container_name: loadbalancer-sim-service
+    ports:
+      - "8084:8084"
     environment:
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-service:8761/eureka/
       - SPRING_CONFIG_IMPORT=optional:configserver:http://config-server:8888
     depends_on:
-      - discovery-service
-      - config-server
+      discovery-service:
+        condition: service_healthy
+      config-server:
+        condition: service_healthy
     networks:
       - sandbox-net
+
+  api-gateway:
+    build:
+      context: .
+      args:
+        SERVICE_NAME: api-gateway
+    container_name: api-gateway
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-service:8761/eureka/
+      - EUREKA_URI=http://discovery-service:8761/eureka/
+      - SPRING_CONFIG_IMPORT=optional:configserver:http://config-server:8888
+      - AUTH_SERVICE_URL=http://auth-service:8081
+      - CONTAINER_SIM_SERVICE_URL=http://container-sim-service:8082
+      - PROGRESS_SERVICE_URL=http://progress-service:8085
+      - MANIFEST_SERVICE_URL=http://manifest-service:8083
+      - LOADBALANCER_SIM_SERVICE_URL=http://loadbalancer-sim-service:8084
+      - JWT_SECRET=1zcbHpUZkLDels67-SUEGSSt_nWdQpc_2hamlL5LJwa
+      - SERVER_PORT=8080
+    depends_on:
+      discovery-service:
+        condition: service_healthy
+      config-server:
+        condition: service_healthy
+      auth-service:
+        condition: service_healthy
+    networks:
+      - sandbox-net
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8080/actuator/health" ]
+      interval: 30s
+      timeout: 10s
+      retries: 10
+      start_period: 60s
+    restart: unless-stopped
 
   frontend-ui:
     build:
@@ -355,55 +301,6 @@ services:
       - sandbox-net
     depends_on:
       - api-gateway
-
-  # --- DATABASES ---
-  postgres-auth:
-    image: postgres:15-alpine
-    container_name: postgres-auth
-    environment:
-      POSTGRES_DB: sandbox_auth
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: adedeji1127
-    volumes:
-      - ./data/auth:/var/lib/postgresql/data
-    networks:
-      - sandbox-net
-
-  postgres-containers:
-    image: postgres:15-alpine
-    container_name: postgres-containers
-    environment:
-      POSTGRES_DB: sandbox_containers
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: adedeji1127
-    volumes:
-      - ./data/containers:/var/lib/postgresql/data
-    networks:
-      - sandbox-net
-
-  postgres-progress:
-    image: postgres:15-alpine
-    container_name: postgres-progress
-    environment:
-      POSTGRES_DB: sandbox_progress
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: adedeji1127
-    volumes:
-      - ./data/progress:/var/lib/postgresql/data
-    networks:
-      - sandbox-net
-
-  postgres-manifest:
-    image: postgres:15-alpine
-    container_name: postgres-manifest
-    environment:
-      POSTGRES_DB: sandbox_manifest
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: adedeji1127
-    volumes:
-      - ./data/manifest:/var/lib/postgresql/data
-    networks:
-      - sandbox-net
 
 networks:
   sandbox-net:

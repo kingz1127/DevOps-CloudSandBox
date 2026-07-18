@@ -1,12 +1,39 @@
+#eureka:
+#  client:
+#    service-url:
+#      defaultZone: ${EUREKA_URI:http://discovery-service:8761/eureka/}
+#  instance:
+#    prefer-ip-address: true
+#
+## CRITICAL FIX: This tells the services they are behind a Gateway.
+## This makes Swagger use port 8080 for requests, which stops the CORS error.
+#server:
+#  forward-headers-strategy: framework
+#
+#springdoc:
+#  api-docs:
+#    path: /v3/api-docs
+#  swagger-ui:
+#    enabled: true
+#  # THIS IS THE CRITICAL ADDITION:
+#  openapi:
+#    servers:
+#      - url: http://localhost:8080
+#        description: API Gateway
+#
+#logging:
+#  level:
+#    root: INFO
+#    com.cloudsandbox: DEBUG
+
+
 eureka:
   client:
     service-url:
-      defaultZone: ${EUREKA_URI:http://discovery-service:8761/eureka/}
+      defaultZone: http://discovery-service:8761/eureka/
   instance:
     prefer-ip-address: true
 
-# CRITICAL FIX: This tells the services they are behind a Gateway.
-# This makes Swagger use port 8080 for requests, which stops the CORS error.
 server:
   forward-headers-strategy: framework
 
@@ -15,7 +42,6 @@ springdoc:
     path: /v3/api-docs
   swagger-ui:
     enabled: true
-  # THIS IS THE CRITICAL ADDITION:
   openapi:
     servers:
       - url: http://localhost:8080

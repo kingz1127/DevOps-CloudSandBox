@@ -1,3 +1,4 @@
+
 package com.cloudsandbox.auth.service.impl;
 
 import com.cloudsandbox.auth.dto.request.*;
@@ -9,7 +10,8 @@ import com.cloudsandbox.auth.repository.*;
 import com.cloudsandbox.auth.security.JwtService;
 import com.cloudsandbox.auth.service.AuthService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value; // Added
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -23,16 +25,16 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class AuthServiceImpl implements AuthService {
 
     private static final long REFRESH_TOKEN_EXPIRY_DAYS = 7;
 
-    // Inject this from your properties/environment variables
     @Value("${app.frontend.url:http://localhost:5173}")
     private String frontendUrl;
 
     private final UserRepository userRepository;
-    private final RefreshTokenRepository refreshTokenRepository; // Uncommented this
+    private final RefreshTokenRepository refreshTokenRepository;
     private final PasswordResetTokenRepository tokenRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
@@ -42,6 +44,14 @@ public class AuthServiceImpl implements AuthService {
     @Override
     @Transactional
     public AuthResponse register(RegisterRequest request) {
+        // Check if user exists
+        if (userRepository.findByEmail(request.email()).isPresent()) {
+            throw new RuntimeException("Email already registered");
+        }
+        if (userRepository.findByUsername(request.username()).isPresent()) {
+            throw new RuntimeException("Username already taken");
+        }
+
         User user = User.builder()
                 .username(request.username())
                 .email(request.email())
@@ -73,54 +83,95 @@ public class AuthServiceImpl implements AuthService {
     @Override
     @Transactional
     public void forgotPassword(String email) {
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+        log.info("Processing forgot password request for email: {}", email);
 
-        tokenRepository.deleteByUserEmail(email);
+        try {
+            // Check if user exists
+            User user = userRepository.findByEmail(email)
+                    .orElseThrow(() -> {
+                        log.warn("User not found with email: {}", email);
+                        return new RuntimeException("User not found");
+                    });
 
-        String token = UUID.randomUUID().toString();
-        PasswordResetToken resetToken = PasswordResetToken.builder()
-                .token(token)
-                .userEmail(email)
-                .expiryDate(LocalDateTime.now().plusMinutes(15))
-                .build();
+            // Delete existing tokens for this user
+            tokenRepository.deleteByUserEmail(email);
 
-        tokenRepository.save(resetToken);
-        sendResetEmail(email, token);
+            // Generate new token
+            String token = UUID.randomUUID().toString();
+            PasswordResetToken resetToken = PasswordResetToken.builder()
+                    .token(token)
+                    .userEmail(email)
+                    .expiryDate(LocalDateTime.now().plusMinutes(15))
+                    .build();
+
+            tokenRepository.save(resetToken);
+            log.info("Password reset token generated for user: {}", email);
+
+            // Send email with reset link
+            sendResetEmail(email, token);
+            log.info("Reset email sent to: {}", email);
+
+        } catch (Exception e) {
+            log.error("Error in forgot password for email {}: {}", email, e.getMessage());
+            // Re-throw the exception to be handled by controller
+            throw new RuntimeException("Failed to process password reset request: " + e.getMessage());
+        }
     }
 
     @Override
     @Transactional
     public void resetPassword(String token, String newPassword) {
+        log.info("Processing password reset with token: {}", token);
+
         PasswordResetToken resetToken = tokenRepository.findByToken(token)
-                .orElseThrow(() -> new InvalidTokenException("Invalid or expired reset link"));
+                .orElseThrow(() -> {
+                    log.warn("Invalid password reset token: {}", token);
+                    return new InvalidTokenException("Invalid or expired reset link");
+                });
 
         if (resetToken.getExpiryDate().isBefore(LocalDateTime.now())) {
+            log.warn("Expired password reset token: {}", token);
             tokenRepository.delete(resetToken);
             throw new InvalidTokenException("Reset link has expired");
         }
 
         User user = userRepository.findByEmail(resetToken.getUserEmail())
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> {
+                    log.warn("User not found for reset token: {}", token);
+                    return new RuntimeException("User not found");
+                });
 
+        // Update password
         user.setPasswordHash(passwordEncoder.encode(newPassword));
         userRepository.save(user);
+        log.info("Password reset successful for user: {}", user.getEmail());
+
+        // Delete used token
         tokenRepository.delete(resetToken);
     }
 
     private void sendResetEmail(String email, String token) {
-        SimpleMailMessage message = new SimpleMailMessage();
-        message.setFrom("osunyingboadedeji1@gmail.com");
-        message.setTo(email);
-        message.setSubject("CloudSandbox - Password Reset Request");
+        try {
+            SimpleMailMessage message = new SimpleMailMessage();
+            message.setFrom("osunyingboadedeji1@gmail.com");
+            message.setTo(email);
+            message.setSubject("CloudSandbox - Password Reset Request");
 
-        // DYNAMIC LINK: Uses localhost in dev and Vercel in prod
-        String resetLink = frontendUrl + "/reset-password?token=" + token;
+            String resetLink = frontendUrl + "/reset-password?token=" + token;
+            log.info("Reset link for {}: {}", email, resetLink);
 
-        message.setText("Hello,\n\nYou requested to reset your password. Click the link below to proceed:\n\n"
-                + resetLink + "\n\nThis link is valid for 15 minutes.");
+            message.setText("Hello,\n\nYou requested to reset your password. Click the link below to proceed:\n\n"
+                    + resetLink + "\n\nThis link is valid for 15 minutes.\n\n"
+                    + "If you didn't request this, please ignore this email.");
 
-        mailSender.send(message);
+            mailSender.send(message);
+            log.info("Password reset email sent successfully to: {}", email);
+
+        } catch (Exception e) {
+            log.error("Failed to send reset email to {}: {}", email, e.getMessage());
+            // Don't rethrow - we want to continue even if email fails
+            // But we should log it properly
+        }
     }
 
     @Override

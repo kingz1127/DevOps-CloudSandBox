@@ -284,9 +284,10 @@ const TerminalPage = () => {
         const name = nameMatch ? nameMatch[1] : `deployment-${Date.now()}`;
         const image = imageMatch ? imageMatch[1] : 'nginx:latest';
 
-        const res = await containerService.run(name, image);
-        term.writeln(`\x1b[1;32mdeployment.apps/${name} created\x1b[0m`);
-        term.writeln(`pod/${res.containerId} \x1b[1;32mRunning\x1b[0m  IP: ${res.internalIp}`);
+       const res = await containerService.run(name, image);
+term.writeln(`\x1b[1;32mdeployment.apps/${name} created\x1b[0m`);
+term.writeln(`pod/${res.containerId} \x1b[1;32mRunning\x1b[0m  IP: ${res.internalIp}`);
+await progressService.submitProgress('Kubernetes Lab: Apply Manifest', 100, res.containerId);
 
         await progressService.submitProgress('Kubernetes Lab: Apply Manifest', 100);
       } catch (e) {
@@ -328,29 +329,39 @@ const TerminalPage = () => {
       const action = parts[1];
 
       if (action === 'run') {
-        const nameMatch = cleanCommand.match(/--name\s+(\S+)/);
-        const imageMatch = cleanCommand.match(/--image\s+(\S+)/);
+  const nameMatch = cleanCommand.match(/--name\s+(\S+)/);
+  const imageMatch = cleanCommand.match(/--image\s+(\S+)/);
 
-        if (!nameMatch || !imageMatch) {
-          xtermRef.current?.writeln('\x1b[1;31mUsage:\x1b[0m docker run --name [name] --image [image]');
-          return;
-        }
+  if (!nameMatch || !imageMatch) {
+    xtermRef.current?.writeln('\x1b[1;31mUsage:\x1b[0m docker run --name [name] --image [image]');
+    return;
+  }
 
-        const name = nameMatch[1];
-        const image = imageMatch[1];
+  const name = nameMatch[1];
+  const image = imageMatch[1];
 
-        xtermRef.current?.writeln(`\x1b[1;36mSimulating:\x1b[0m Pulling layer 7f8e9a2b from registry...`);
-        xtermRef.current?.writeln(`\x1b[1;36mSimulating:\x1b[0m Verifying checksum...`);
+  xtermRef.current?.writeln(`\x1b[1;36mVerifying:\x1b[0m checking '${image}' against registry...`);
 
-        try {
-          const res = await containerService.run(name, image);
-          xtermRef.current?.writeln(`\x1b[1;32mSUCCESS:\x1b[0m Container ${res.containerId} is UP.`);
-          xtermRef.current?.writeln(`Virtual IP: ${res.internalIp}`);
-          await progressService.submitProgress('Docker Lab: Deployment', 100);
-        } catch (e) {
-          xtermRef.current?.writeln('\x1b[1;31mERROR:\x1b[0m API Gateway connection failed.');
-        }
-      }
+  try {
+    const validation = await containerService.validateImage(image);
+
+    if (!validation.valid) {
+      xtermRef.current?.writeln(`\x1b[1;31mError:\x1b[0m ${validation.message}`);
+      return;
+    }
+
+    xtermRef.current?.writeln(`\x1b[1;32mVerified:\x1b[0m ${validation.message}`);
+    xtermRef.current?.writeln(`\x1b[1;36mSimulating:\x1b[0m Pulling layer 7f8e9a2b from registry...`);
+    xtermRef.current?.writeln(`\x1b[1;36mSimulating:\x1b[0m Verifying checksum...`);
+
+    const res = await containerService.run(name, image);
+xtermRef.current?.writeln(`\x1b[1;32mSUCCESS:\x1b[0m Container ${res.containerId} is UP.`);
+xtermRef.current?.writeln(`Virtual IP: ${res.internalIp}`);
+await progressService.submitProgress('Docker Lab: Deployment', 100, res.containerId);
+  } catch (e) {
+    xtermRef.current?.writeln('\x1b[1;31mERROR:\x1b[0m API Gateway connection failed.');
+  }
+}
 
       else if (action === 'ps') {
         try {
@@ -401,19 +412,19 @@ const TerminalPage = () => {
 
       // NEW: docker rm
       else if (action === 'rm') {
-        const targetId = parts[2];
-        if (!targetId) {
-          xtermRef.current?.writeln('Usage: docker rm [container_id]');
-          return;
-        }
-        try {
-          await containerService.delete(targetId);
-          xtermRef.current?.writeln(`\x1b[1;32mOK:\x1b[0m Container ${targetId} removed.`);
-          await progressService.submitProgress('Docker Lab: Remove Container', 100);
-        } catch (e) {
-          xtermRef.current?.writeln('\x1b[1;31mERROR:\x1b[0m Could not remove container. ID not found.');
-        }
-      }
+  const targetId = parts[2];
+  if (!targetId) {
+    xtermRef.current?.writeln('Usage: docker rm [container_id]');
+    return;
+  }
+  try {
+    await containerService.delete(targetId);
+    await progressService.deleteByContainer(targetId);
+    xtermRef.current?.writeln(`\x1b[1;32mOK:\x1b[0m Container ${targetId} removed.`);
+  } catch (e) {
+    xtermRef.current?.writeln('\x1b[1;31mERROR:\x1b[0m Could not remove container. ID not found.');
+  }
+}
 
       else {
         xtermRef.current?.writeln(`docker: '${action}' is not a docker command.`);
@@ -464,19 +475,19 @@ const TerminalPage = () => {
       }
 
       else if (action === 'delete' && target === 'pod') {
-        const podId = parts[3];
-        if (!podId) {
-          xtermRef.current?.writeln('Usage: kubectl delete pod [id]');
-          return;
-        }
-        try {
-          await containerService.delete(podId);
-          xtermRef.current?.writeln(`pod "${podId}" \x1b[1;32mdeleted\x1b[0m`);
-          await progressService.submitProgress('Kubernetes Lab: Delete Pod', 100);
-        } catch (e) {
-          xtermRef.current?.writeln(`\x1b[1;31mError from server (NotFound):\x1b[0m pods "${podId}" not found`);
-        }
-      }
+  const podId = parts[3];
+  if (!podId) {
+    xtermRef.current?.writeln('Usage: kubectl delete pod [id]');
+    return;
+  }
+  try {
+    await containerService.delete(podId);
+    await progressService.deleteByContainer(podId);
+    xtermRef.current?.writeln(`pod "${podId}" \x1b[1;32mdeleted\x1b[0m`);
+  } catch (e) {
+    xtermRef.current?.writeln(`\x1b[1;31mError from server (NotFound):\x1b[0m pods "${podId}" not found`);
+  }
+}
 
       else if (action === 'apply' && parts[2] === '-f' && parts[3] === '-') {
         applyModeRef.current = true;

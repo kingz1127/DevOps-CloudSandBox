@@ -2,6 +2,7 @@ C:\Users\USER\devops-cloudsandbox\auth-service\src\main\java\com\cloudsandbox\au
 C:\Users\USER\devops-cloudsandbox\auth-service\src\main\java\com\cloudsandbox\auth\security\JwtService.java
 C:\Users\USER\devops-cloudsandbox\auth-service\src\main\java\com\cloudsandbox\auth\repository\RefreshTokenRepository.java
 C:\Users\USER\devops-cloudsandbox\auth-service\src\main\java\com\cloudsandbox\auth\controller\UserController.java
+C:\Users\USER\devops-cloudsandbox\auth-service\src\main\java\com\cloudsandbox\auth\config\MailConfig.java
 C:\Users\USER\devops-cloudsandbox\auth-service\src\main\java\com\cloudsandbox\auth\dto\response\UserResponse.java
 C:\Users\USER\devops-cloudsandbox\auth-service\src\main\java\com\cloudsandbox\auth\dto\request\ResetPasswordRequest.java
 C:\Users\USER\devops-cloudsandbox\auth-service\src\main\java\com\cloudsandbox\auth\entity\RefreshToken.java

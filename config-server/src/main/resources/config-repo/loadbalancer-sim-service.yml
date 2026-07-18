@@ -4,3 +4,27 @@ server:
 spring:
   application:
     name: loadbalancer-sim-service
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://discovery-service:8761/eureka/
+    fetch-registry: true
+    register-with-eureka: true
+  instance:
+    prefer-ip-address: true
+    hostname: loadbalancer-sim-service
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: always
+
+logging:
+  level:
+    com.cloudsandbox: DEBUG
+    com.netflix: DEBUG

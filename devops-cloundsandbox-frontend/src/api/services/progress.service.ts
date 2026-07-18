@@ -7,23 +7,27 @@ export interface StudentProgress {
   score: number;
   completed: boolean;
   completionDate: string;
+  relatedContainerId?: string;
 }
 
 export const progressService = {
-  // Hits Gateway 8080 -> routes to Progress Service 8085
   getMyProgress: async (): Promise<StudentProgress[]> => {
     const response = await apiClient.get('/progress/me');
     return response.data;
   },
 
-  // Used internally when a student finishes an exercise
-  submitProgress: async (moduleName: string, score: number): Promise<StudentProgress> => {
+  submitProgress: async (moduleName: string, score: number, relatedContainerId?: string): Promise<StudentProgress> => {
     const response = await apiClient.post('/progress/submit', {
       moduleName,
       score,
       completed: score >= 70,
-      completionDate: new Date().toISOString()
+      completionDate: new Date().toISOString(),
+      relatedContainerId
     });
     return response.data;
+  },
+
+  deleteByContainer: async (containerId: string): Promise<void> => {
+    await apiClient.delete(`/progress/by-container/${containerId}`);
   }
 };

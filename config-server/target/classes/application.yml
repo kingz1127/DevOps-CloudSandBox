@@ -1,3 +1,4 @@
+# config-server/src/main/resources/application.yml
 server:
   port: ${PORT:8888}
 
@@ -11,11 +12,19 @@ spring:
       server:
         native:
           search-locations: classpath:/config-repo
-
+      # Add this to handle failures gracefully
+      fail-fast: false
 
 eureka:
   client:
     service-url:
-      defaultZone: ${EUREKA_URI:http://localhost:8761/eureka/}
+      defaultZone: ${EUREKA_URI:http://discovery-service:8761/eureka/}
   instance:
     prefer-ip-address: true
+
+# Enable health check
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info

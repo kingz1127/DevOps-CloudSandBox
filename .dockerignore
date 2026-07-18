@@ -1,6 +1,15 @@
-node_modules
-dist
-target
+# Ignore local compilation target folders
+**/target/
+**/dist/
+
+# Ignore local dependency folders
+**/node_modules/
+
+# SECRETS: Do not copy local database data or environment keys into images
+.env
+**/data/
+
+# Source Control & Logs
 .git
 .github
-*.log
+**/*.log

@@ -29,7 +29,7 @@ spring:
             - RewritePath=/container-sim-service/(?<path>.*), /$\{path}
 
         - id: manifest-service
-          uri: lb://MANIFEST-SERVICE
+          uri: http://manifest-service:8083
           predicates:
             - Path=/api/v1/manifests/**, /manifest-service/v3/api-docs/**
           filters:
@@ -45,7 +45,7 @@ spring:
             - RewritePath=/progress-service/(?<path>.*), /$\{path}
 
         - id: loadbalancer-sim-service
-          uri: lb://LOADBALANCER-SIM-SERVICE
+          uri: http://loadbalancer-sim-service:8084
           predicates:
             - Path=/api/v1/loadbalancers/**, /loadbalancer-sim-service/v3/api-docs/**
           filters:

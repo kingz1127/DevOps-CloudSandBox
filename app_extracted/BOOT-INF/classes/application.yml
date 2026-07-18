@@ -1,0 +1,169 @@
+#server:
+#  port: ${PORT:8080}
+#
+#spring:
+#  application:
+#    name: api-gateway
+#  cloud:
+#    gateway:
+#      discovery:
+#        locator:
+#          enabled: false
+#      globalcors:
+#        cors-configurations:
+#          '[/**]':
+#            allowedOrigins:
+#              - "http://localhost:5173"
+#              - "http://localhost:3000"
+#              - "https://dev-ops-cloud-sand-box.vercel.app"
+#            allowedMethods:
+#              - GET
+#              - POST
+#              - PUT
+#              - DELETE
+#              - OPTIONS
+#              - PATCH
+#            allowedHeaders:
+#              - "*"
+#            allowCredentials: true
+#            maxAge: 3600
+#      routes:
+#        - id: auth-service
+#          uri: ${AUTH_SERVICE_URL:http://localhost:8081}
+#          predicates:
+#            - Path=/api/v1/auth/**, /auth/v3/api-docs/**
+#
+#        - id: container-sim-service-api
+#          uri: ${CONTAINER_SIM_SERVICE_URL:http://localhost:8082}
+#          predicates:
+#            - Path=/api/v1/containers/**
+#          filters:
+#            - AuthenticationFilter
+#
+#        - id: container-sim-service-docs
+#          uri: ${CONTAINER_SIM_SERVICE_URL:http://localhost:8082}
+#          predicates:
+#            - Path=/containers/v3/api-docs/**
+#          filters:
+#            - StripPrefix=1
+#
+#        - id: progress-service
+#          uri: ${PROGRESS_SERVICE_URL:http://localhost:8085}
+#          predicates:
+#            - Path=/api/v1/progress/**
+#          filters:
+#            - AuthenticationFilter
+#
+#springdoc:
+#  swagger-ui:
+#    path: /swagger-ui.html
+#    urls:
+#      - name: Authentication Service
+#        url: /auth/v3/api-docs
+#      - name: Container Simulator Service
+#        url: /containers/v3/api-docs
+#  api-docs:
+#    path: /v3/api-docs
+#
+#eureka:
+#  client:
+#    service-url:
+#      defaultZone: ${EUREKA_URI:http://localhost:8761/eureka/}
+#
+#jwt:
+#  secret: ${JWT_SECRET:1zcbHpUZkLDels67-SUEGSSt_nWdQpc_2hamlL5LJwa}
+
+
+
+
+
+server:
+  port: ${PORT:8080}
+
+spring:
+  application:
+    name: api-gateway
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: true
+          lower-case-service-id: true
+      globalcors:
+        cors-configurations:
+          '[/**]':
+            allowedOrigins:
+              - "http://localhost:5173"
+              - "http://localhost:3000"
+              - "https://dev-ops-cloud-sand-box.vercel.app"
+            allowedMethods:
+              - GET
+              - POST
+              - PUT
+              - DELETE
+              - OPTIONS
+              - PATCH
+            allowedHeaders:
+              - "*"
+            allowCredentials: true
+            maxAge: 3600
+      routes:
+        - id: auth-service
+          uri: lb://AUTH-SERVICE
+          predicates:
+            - Path=/api/v1/auth/**
+        - id: auth-service-docs
+          uri: lb://AUTH-SERVICE
+          predicates:
+            - Path=/v3/api-docs/**
+          filters:
+            - StripPrefix=0
+
+        - id: container-sim-service
+          uri: lb://CONTAINER-SIM-SERVICE
+          predicates:
+            - Path=/api/v1/containers/**
+
+        - id: manifest-service
+          uri: lb://MANIFEST-SERVICE
+          predicates:
+            - Path=/api/v1/manifests/**
+
+        - id: progress-service
+          uri: lb://PROGRESS-SERVICE
+          predicates:
+            - Path=/api/v1/progress/**
+
+        - id: loadbalancer-sim-service
+          uri: http://loadbalancer-sim-service:8084
+          predicates:
+            - Path=/api/v1/loadbalancers/**
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+    urls:
+      - name: Authentication Service
+        url: /auth/v3/api-docs
+      - name: Container Simulator Service
+        url: /containers/v3/api-docs
+  api-docs:
+    path: /v3/api-docs
+
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_URI:http://discovery-service:8761/eureka/}
+    fetch-registry: true
+    register-with-eureka: true
+  instance:
+    prefer-ip-address: true
+    hostname: api-gateway
+
+jwt:
+  secret: ${JWT_SECRET:1zcbHpUZkLDels67-SUEGSSt_nWdQpc_2hamlL5LJwa}
+
+logging:
+  level:
+    com.netflix: DEBUG
+    org.springframework.cloud.gateway: DEBUG

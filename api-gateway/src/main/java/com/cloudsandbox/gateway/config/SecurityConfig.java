@@ -24,7 +24,6 @@ public class SecurityConfig {
                 .authorizeExchange(exchanges -> exchanges
                         .anyExchange().permitAll()
                 )
-                // ADD THIS BLOCK: It removes duplicate headers from microservices
                 .headers(headers -> headers
                         .frameOptions(frameOptions -> frameOptions.disable())
                 );
@@ -32,22 +31,4 @@ public class SecurityConfig {
         return http.build();
     }
 
-//    @Bean
-//    public CorsWebFilter corsWebFilter() {
-//        CorsConfiguration corsConfig = new CorsConfiguration();
-//
-//        corsConfig.setAllowedOrigins(Arrays.asList(
-//                "http://localhost:5173",
-//                "http://localhost:3000",
-//                "https://dev-ops-cloud-sand-box.vercel.app"));
-//        corsConfig.setMaxAge(3600L);
-//        corsConfig.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
-//        corsConfig.setAllowedHeaders(Arrays.asList("Content-Type", "Authorization", "X-User-Id", "Accept"));
-//        corsConfig.setAllowCredentials(true);
-//
-//        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-//        source.registerCorsConfiguration("/**", corsConfig);
-//
-//        return new CorsWebFilter(source);
-//    }
 }

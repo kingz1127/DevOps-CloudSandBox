@@ -16,4 +16,5 @@ public class StudentProgress {
     private Integer score;
     private boolean completed;
     private LocalDateTime completionDate;
+    private String relatedContainerId;
 }

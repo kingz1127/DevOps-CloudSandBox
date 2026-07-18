@@ -10,16 +10,27 @@ spring:
 eureka:
   client:
     service-url:
-      defaultZone: ${EUREKA_URI:http://localhost:8761/eureka/}
+      defaultZone: ${EUREKA_URI:http://discovery-service:8761/eureka/}  # Change from localhost
+    fetch-registry: true
+    register-with-eureka: true
   instance:
     prefer-ip-address: true
+    hostname: loadbalancer-sim-service
 
 management:
   endpoints:
     web:
       exposure:
         include: health,info
+  endpoint:
+    health:
+      show-details: always
 
 springdoc:
   swagger-ui:
     path: /swagger-ui.html
+
+logging:
+  level:
+    com.cloudsandbox: DEBUG
+    com.netflix: DEBUG

@@ -3,16 +3,21 @@ com\cloudsandbox\containersim\exception\ErrorResponse.class
 com\cloudsandbox\containersim\entity\ContainerEvent$ContainerEventBuilder.class
 com\cloudsandbox\containersim\entity\ContainerEvent.class
 com\cloudsandbox\containersim\entity\SimContainer.class
+com\cloudsandbox\containersim\service\image\ImageValidator.class
 com\cloudsandbox\containersim\exception\InvalidStateTransitionException.class
 com\cloudsandbox\containersim\repository\ContainerLogRepository.class
+com\cloudsandbox\containersim\service\image\ImageValidationResult.class
 com\cloudsandbox\containersim\exception\GlobalExceptionHandler.class
+com\cloudsandbox\containersim\service\image\ImageValidationService.class
 com\cloudsandbox\containersim\entity\ContainerStatus.class
 com\cloudsandbox\containersim\exception\ContainerNotFoundException.class
+com\cloudsandbox\containersim\service\image\DockerHubImageValidator.class
 com\cloudsandbox\containersim\ContainerSimServiceApplication.class
 com\cloudsandbox\containersim\mapper\ContainerMapper.class
 com\cloudsandbox\containersim\dto\response\ContainerEventResponse.class
 com\cloudsandbox\containersim\dto\response\ContainerLogResponse.class
 com\cloudsandbox\containersim\repository\ContainerEventRepository.class
+com\cloudsandbox\containersim\exception\InvalidImageException.class
 com\cloudsandbox\containersim\entity\SimContainer$SimContainerBuilder.class
 com\cloudsandbox\containersim\dto\request\CreateContainerRequest.class
 com\cloudsandbox\containersim\entity\ContainerLog$ContainerLogBuilder.class
@@ -23,3 +28,4 @@ com\cloudsandbox\containersim\controller\ContainerController.class
 com\cloudsandbox\containersim\service\impl\ContainerServiceImpl.class
 com\cloudsandbox\containersim\mapper\ContainerMapperImpl.class
 com\cloudsandbox\containersim\repository\SimContainerRepository.class
+com\cloudsandbox\containersim\service\image\DockerHubImageValidator$ParsedImage.class

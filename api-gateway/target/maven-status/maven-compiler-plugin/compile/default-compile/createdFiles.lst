@@ -1,6 +1,0 @@
-com\cloudsandbox\gateway\filter\AuthenticationFilter$Config.class
-com\cloudsandbox\gateway\config\RouteConfig.class
-com\cloudsandbox\gateway\security\JwtValidator.class
-com\cloudsandbox\gateway\filter\AuthenticationFilter.class
-com\cloudsandbox\gateway\ApiGatewayApplication.class
-com\cloudsandbox\gateway\config\SecurityConfig.class
