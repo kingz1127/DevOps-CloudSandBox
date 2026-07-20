@@ -1,144 +1,9 @@
-###server:
-###  port: ${PORT:8081}
-###  forward-headers-strategy: framework
-###
-###spring:
-###  application:
-###    name: auth-service
-###  datasource:
-###    url: jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_NAME}?sslmode=require
-###    username: ${DB_USER}
-###    password: ${DB_PASSWORD}
-###    driver-class-name: org.postgresql.Driver
-###    hikari:
-###      maximum-pool-size: 3
-###      minimum-idle: 1
-###      connection-timeout: 20000
-###      idle-timeout: 30000
-###  jpa:
-###    hibernate:
-###      ddl-auto: update
-###    show-sql: true
-###    database-platform: org.hibernate.dialect.PostgreSQLDialect
-###  mail:
-###    host: smtp-relay.brevo.com
-###    port: 2525
-###    username: ${BREVO_USER}
-###    password: ${BREVO_PASSWORD}
-###    properties:
-###      mail:
-###        smtp:
-###          auth: true
-###          starttls:
-###            enable: true
-###
-###app:
-###  frontend:
-###    url: ${FRONTEND_URL:http://localhost:5173}
-###
-###springdoc:
-###  swagger-ui:
-###    path: /swagger-ui.html
-###  api-docs:
-###    path: /v3/api-docs
-###
-###jwt:
-###  secret: ${JWT_SECRET:1zcbHpUZkLDels67-SUEGSSt_nWdQpc_2hamlL5LJwa}
-###  expiration: 86400000
-###
-###eureka:
-###  client:
-###    service-url:
-###      defaultZone: ${EUREKA_URI:http://localhost:8761/eureka/}
-##
-##
-##spring:
-##  application:
-##    name: auth-service
-##  config:
-##    import: "optional:configserver:http://config-server:8888"
-##
-### Backup Eureka setting
-##eureka:
-##  client:
-##    service-url:
-##      defaultZone: http://discovery-service:8761/eureka/
-#
-#
-#
-#
-## services/auth-service/src/main/resources/application.yml
-#spring:
-#  application:
-#    name: auth-service
-#
-#  # Make config server optional and add fallback
-#  config:
-#    import: "optional:configserver:${CONFIG_SERVER_URI:http://config-server:8888}"
-#
-#  # Fallback configuration if config server is not available
-#  datasource:
-#    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/sandbox_auth}
-#    username: ${SPRING_DATASOURCE_USERNAME:postgres}
-#    password: ${SPRING_DATASOURCE_PASSWORD:adedeji1127}
-#    driver-class-name: org.postgresql.Driver
-#
-#  jpa:
-#    hibernate:
-#      ddl-auto: update
-#    show-sql: true
-#    properties:
-#      hibernate:
-#        dialect: org.hibernate.dialect.PostgreSQLDialect
-#
-#server:
-#  port: ${SERVER_PORT:8081}
-#
-## JWT Fallback
-#jwt:
-#  secret: ${JWT_SECRET:1zcbHpUZkLDels67-SUEGSSt_nWdQpc_2hamlL5LJwa}
-#  expiration: ${JWT_EXPIRATION:86400000}
-#  refresh-expiration: ${JWT_REFRESH_EXPIRATION:604800000}
-#
-#eureka:
-#  client:
-#    service-url:
-#      defaultZone: ${EUREKA_CLIENT_SERVICEURL_DEFAULTZONE:http://discovery-service:8761/eureka/}
-#    fetch-registry: true
-#    register-with-eureka: true
-#
-#logging:
-#  level:
-#    com.cloudsandbox: DEBUG
-#    org.springframework.cloud: DEBUG
-
-
-
-
-
-
-# services/auth-service/src/main/resources/application.yml
+# auth-service/src/main/resources/application.yml
 spring:
   application:
     name: auth-service
-
-  # Make config server optional and add fallback
   config:
-    import: "optional:configserver:${CONFIG_SERVER_URI:http://config-server:8888}"
-
-  # Fallback configuration if config server is not available
-  datasource:
-    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/sandbox_auth}
-    username: ${SPRING_DATASOURCE_USERNAME:postgres}
-    password: ${SPRING_DATASOURCE_PASSWORD:adedeji1127}
-    driver-class-name: org.postgresql.Driver
-    hikari:
-      maximum-pool-size: 10
-      minimum-idle: 5
-      connection-timeout: 30000
-      idle-timeout: 600000
-      max-lifetime: 1800000
-
+    import: ""
   jpa:
     hibernate:
       ddl-auto: update
@@ -149,7 +14,6 @@ spring:
         format_sql: true
     database-platform: org.hibernate.dialect.PostgreSQLDialect
 
-  # ADD MAIL CONFIGURATION HERE
   mail:
     host: ${MAIL_HOST:smtp-relay.brevo.com}
     port: ${MAIL_PORT:2525}
@@ -166,31 +30,17 @@ server:
   port: ${SERVER_PORT:8081}
   forward-headers-strategy: framework
 
-# JWT Configuration
 jwt:
   secret: ${JWT_SECRET:1zcbHpUZkLDels67-SUEGSSt_nWdQpc_2hamlL5LJwa}
   expiration: ${JWT_EXPIRATION:86400000}
   refresh-expiration: ${JWT_REFRESH_EXPIRATION:604800000}
 
-# Eureka Configuration
-eureka:
-  client:
-    service-url:
-      defaultZone: ${EUREKA_CLIENT_SERVICEURL_DEFAULTZONE:http://discovery-service:8761/eureka/}
-    fetch-registry: true
-    register-with-eureka: true
-  instance:
-    prefer-ip-address: true
-    hostname: ${HOSTNAME:localhost}
-
-# Swagger/OpenAPI
 springdoc:
   swagger-ui:
     path: /swagger-ui.html
   api-docs:
     path: /v3/api-docs
 
-# Frontend URL
 app:
   frontend:
     url: ${FRONTEND_URL:http://localhost:5173}
@@ -205,22 +55,56 @@ management:
     health:
       show-details: always
       show-components: always
-      status:
-        http-mapping:
-          down: 503
-          out-of-service: 503
-  health:
-    db:
-      enabled: true
-    defaults:
-      enabled: true
 
-
-# Logging
 logging:
   level:
     com.cloudsandbox: DEBUG
-    org.springframework.security: DEBUG
-    org.springframework.web: DEBUG
-    org.springframework.cloud: DEBUG
-    org.springframework.mail: DEBUG
+
+---
+# LOCAL PROFILE
+spring:
+  config:
+    activate:
+      on-profile: local
+  datasource:
+    url: jdbc:postgresql://postgres-auth:5432/sandbox_auth
+    username: postgres
+    password: adedeji1127
+    driver-class-name: org.postgresql.Driver
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://discovery-service:8761/eureka/
+    fetch-registry: true
+    register-with-eureka: true
+  instance:
+    prefer-ip-address: true
+    hostname: localhost
+
+server:
+  port: 8081
+
+---
+# RENDER PROFILE
+spring:
+  config:
+    activate:
+      on-profile: render
+  datasource:
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
+
+eureka:
+  client:
+    service-url:
+      defaultZone: https://devops-cloudsandbox-wyc8.onrender.com/eureka/
+    fetch-registry: true
+    register-with-eureka: true
+  instance:
+    prefer-ip-address: false
+    hostname: auth-service-dqgl.onrender.com
+    non-secure-port: 8081
+    lease-renewal-interval-in-seconds: 30
+    lease-expiration-duration-in-seconds: 90
