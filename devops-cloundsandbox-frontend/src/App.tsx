@@ -1,5 +1,8 @@
+
 import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import { AuthProvider, useAuth } from './store/AuthContext';
 import Sidebar from './components/layout/Sidebar';
 import DashboardPage from './pages/dashboard/DashboardPage';
@@ -53,7 +56,7 @@ function App() {
         <Route path="/login" element={<><LandingNavbar /><LoginPage /></>} />
         <Route path="/forgot-password" element={<><LandingNavbar /><ForgotPassword/></>} />
         
-    <Route path="/reset-password" element={<><LandingNavbar /><ResetPassword/></>} />
+        <Route path="/reset-password" element={<><LandingNavbar /><ResetPassword/></>} />
         <Route path="/register" element={<><LandingNavbar /><RegisterPage /></>} />
         
         {/* Protected routes */}
@@ -73,6 +76,20 @@ function App() {
           } 
         />
       </Routes>
+      
+      {/* Toast Container - Added here */}
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+      />
     </AuthProvider>
   );
 }

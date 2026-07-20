@@ -1,4 +1,4 @@
-// frontend/src/client.ts
+
 import axios from 'axios';
 
 const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080/api/v1';
@@ -44,8 +44,8 @@ apiClient.interceptors.request.use((config) => {
   const token = localStorage.getItem('accessToken');
   const userId = localStorage.getItem('userId');
   
-  console.log('🔑 Token:', token ? 'Present' : 'Missing');
-  console.log('👤 UserId:', userId);
+  // console.log('🔑 Token:', token ? 'Present' : 'Missing');
+  // console.log('👤 UserId:', userId);
   
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
@@ -54,35 +54,13 @@ apiClient.interceptors.request.use((config) => {
     config.headers['X-User-Id'] = userId;
   }
   
-  console.log('📤 Request config:', {
-    url: config.url,
-    headers: config.headers,
-    method: config.method
-  });
+  // console.log('📤 Request config:', {
+  //   url: config.url,
+  //   headers: config.headers,
+  //   method: config.method
+  // });
   
   return config;
 });
-// // Add response interceptor for better error handling
-// apiClient.interceptors.response.use(
-//   (response) => response,
-//   (error) => {
-//     // Log the error for debugging
-//     console.error('API Error:', {
-//       status: error.response?.status,
-//       data: error.response?.data,
-//       url: error.config?.url,
-//       method: error.config?.method,
-//     });
-    
-//     // Return a more user-friendly error message
-//     if (error.response?.data?.message) {
-//       error.message = error.response.data.message;
-//     } else if (error.response?.status === 500) {
-//       error.message = 'Server error. Please try again later.';
-//     }
-    
-//     return Promise.reject(error);
-//   }
-// );
 
 export default apiClient;

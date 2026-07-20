@@ -1,5 +1,6 @@
 
 import React, { useEffect, useState } from 'react';
+import { toast } from 'react-toastify';
 import { containerService } from '../../api/services/container.service';
 import { progressService } from '../../api/services/progress.service';
 import { Server, Activity, Globe, Cpu, Power, PlayCircle, Trash2, RefreshCw } from 'lucide-react';
@@ -14,8 +15,19 @@ const DashboardPage = () => {
     try {
       const data = await containerService.getAll();
       setContainers(data);
+      
+      if (data.length === 0) {
+        toast.info('No containers found. Start one from the terminal!', {
+          position: "top-right",
+          autoClose: 3000,
+        });
+      }
     } catch (error) {
       console.error("Error loading containers", error);
+      toast.error('Failed to load containers. Please refresh.', {
+        position: "top-right",
+        autoClose: 4000,
+      });
     } finally {
       setLoading(false);
     }
@@ -26,36 +38,83 @@ const DashboardPage = () => {
   }, []);
 
   const handleStop = async (containerId: string) => {
-  try {
-    await containerService.stop(containerId);
-    await progressService.submitProgress('Docker Lab: Stop Container', 100);
-    fetchContainers();
-  } catch (error) {
-    alert("Failed to stop container. Check console.");
-  }
-};
-
-const handleStart = async (containerId: string) => {
-  try {
-    await containerService.start(containerId);
-    await progressService.submitProgress('Docker Lab: Start Container', 100);
-    fetchContainers();
-  } catch (error) {
-    alert("Failed to start container. Check console.");
-  }
-};
-
-const handleDelete = async (containerId: string) => {
-  if (window.confirm("Are you sure you want to remove this container?")) {
     try {
-      await containerService.delete(containerId);
-      await progressService.deleteByContainer(containerId);
-      setContainers(containers.filter(c => c.containerId !== containerId));
-    } catch (error) {
-      alert("Failed to delete container.");
+      await containerService.stop(containerId);
+      await progressService.submitProgress('Docker Lab: Stop Container', 100);
+      
+      toast.success(`✅ Container ${containerId} stopped successfully!`, {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        theme: "light",
+      });
+      
+      fetchContainers();
+    } catch (error: any) {
+      const msg = error.response?.data?.message || "Failed to stop container.";
+      toast.error(msg, {
+        position: "top-right",
+        autoClose: 4000,
+      });
+      console.error("Stop error:", error);
     }
-  }
-};
+  };
+
+  const handleStart = async (containerId: string) => {
+    try {
+      await containerService.start(containerId);
+      await progressService.submitProgress('Docker Lab: Start Container', 100);
+      
+      toast.success(`✅ Container ${containerId} started successfully!`, {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        theme: "light",
+      });
+      
+      fetchContainers();
+    } catch (error: any) {
+      const msg = error.response?.data?.message || "Failed to start container.";
+      toast.error(msg, {
+        position: "top-right",
+        autoClose: 4000,
+      });
+      console.error("Start error:", error);
+    }
+  };
+
+  const handleDelete = async (containerId: string) => {
+    if (window.confirm("Are you sure you want to remove this container?")) {
+      try {
+        await containerService.delete(containerId);
+        await progressService.deleteByContainer(containerId);
+        setContainers(containers.filter(c => c.containerId !== containerId));
+        
+        toast.success(`🗑️ Container ${containerId} deleted successfully!`, {
+          position: "top-right",
+          autoClose: 3000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          theme: "light",
+        });
+      } catch (error: any) {
+        const msg = error.response?.data?.message || "Failed to delete container.";
+        toast.error(msg, {
+          position: "top-right",
+          autoClose: 4000,
+        });
+        console.error("Delete error:", error);
+      }
+    }
+  };
 
   return (
     <div className="p-8">
@@ -67,6 +126,7 @@ const handleDelete = async (containerId: string) => {
         <button
           onClick={fetchContainers}
           className="p-2 hover:bg-slate-200 rounded-full transition-colors"
+          title="Refresh"
         >
           <RefreshCw size={20} className={loading ? "animate-spin" : ""} />
         </button>
@@ -130,7 +190,7 @@ const handleDelete = async (containerId: string) => {
                 {c.status === 'STOPPED' ? (
                   <button
                     onClick={() => handleStart(c.containerId)}
-                    className="flex-1 flex items-center justify-center space-x-2 bg-green-600 text-white py-2 rounded-lg text-xs font-bold hover:bg-green-500"
+                    className="flex-1 flex items-center justify-center space-x-2 bg-green-600 text-white py-2 rounded-lg text-xs font-bold hover:bg-green-500 transition-colors"
                   >
                     <PlayCircle size={14} />
                     <span>Start</span>
@@ -138,7 +198,7 @@ const handleDelete = async (containerId: string) => {
                 ) : (
                   <button
                     onClick={() => handleStop(c.containerId)}
-                    className="flex-1 flex items-center justify-center space-x-2 bg-slate-900 text-white py-2 rounded-lg text-xs font-bold hover:bg-slate-800"
+                    className="flex-1 flex items-center justify-center space-x-2 bg-slate-900 text-white py-2 rounded-lg text-xs font-bold hover:bg-slate-800 transition-colors"
                   >
                     <Power size={14} />
                     <span>Stop</span>
@@ -148,6 +208,7 @@ const handleDelete = async (containerId: string) => {
                 <button
                   onClick={() => handleDelete(c.containerId)}
                   className="p-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-colors"
+                  title="Delete Container"
                 >
                   <Trash2 size={16} />
                 </button>

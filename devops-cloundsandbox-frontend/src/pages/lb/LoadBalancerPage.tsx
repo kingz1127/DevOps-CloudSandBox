@@ -1,4 +1,7 @@
+
+
 import React, { useState, useEffect } from 'react';
+import { toast } from 'react-toastify';
 import { lbService, type LoadBalancer } from '../../api/services/lb.service';
 import { containerService } from '../../api/services/container.service';
 import { type Container } from '../../types';
@@ -10,14 +13,27 @@ const LoadBalancerPage = () => {
   const [lastRoute, setLastRoute] = useState<string>('');
   const [isLoading, setIsLoading] = useState(true);
 
-  // 1. Fetch real containers on mount
+  // Fetch real containers on mount
   useEffect(() => {
     const fetchRealData = async () => {
       try {
         const data = await containerService.getAll();
         setContainers(data);
+        
+        // Check if there are any running containers
+        const runningCount = data.filter(c => c.status === 'RUNNING').length;
+        if (runningCount === 0 && data.length > 0) {
+          toast.info('No running containers. Start a container to test load balancing!', {
+            position: "top-right",
+            autoClose: 4000,
+          });
+        }
       } catch (err) {
         console.error("Failed to fetch containers for LB", err);
+        toast.error('Failed to load containers. Please refresh the page.', {
+          position: "top-right",
+          autoClose: 4000,
+        });
       } finally {
         setIsLoading(false);
       }
@@ -25,23 +41,50 @@ const LoadBalancerPage = () => {
     fetchRealData();
   }, []);
 
-const sendTraffic = async () => {
-  const runningContainers = containers.filter(c => c.status === 'RUNNING');
-  if (runningContainers.length === 0) return;
+  const sendTraffic = async () => {
+    const runningContainers = containers.filter(c => c.status === 'RUNNING');
+    if (runningContainers.length === 0) {
+      toast.warning('No running containers available to route traffic.', {
+        position: "top-right",
+        autoClose: 3000,
+      });
+      return;
+    }
 
-  setActiveTraffic(true);
+    setActiveTraffic(true);
 
-  const realIps = runningContainers.map(c => c.internalIp);
+    const realIps = runningContainers.map(c => c.internalIp);
 
-  try {
-    const result = await lbService.hitTraffic(realIps);
-    setLastRoute(result.routingDecision);
-    setTimeout(() => setActiveTraffic(false), 800);
-  } catch (e) {
-    setActiveTraffic(false);
-    console.error("LB Simulation failed", e);
-  }
-};
+    try {
+      const result = await lbService.hitTraffic(realIps);
+      setLastRoute(result.routingDecision);
+      
+      toast.success(`🚦 Traffic routed to ${result.routingDecision}`, {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        theme: "light",
+      });
+      
+      setTimeout(() => setActiveTraffic(false), 800);
+    } catch (e) {
+      setActiveTraffic(false);
+      console.error("LB Simulation failed", e);
+      
+      toast.error('Failed to simulate traffic routing. Please try again.', {
+        position: "top-right",
+        autoClose: 4000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        theme: "light",
+      });
+    }
+  };
 
   if (isLoading) {
     return (
@@ -61,14 +104,14 @@ const sendTraffic = async () => {
       </header>
 
       {containers.filter(c => c.status === 'RUNNING').length === 0 ? (
-  <div className="bg-amber-50 border border-amber-200 p-6 rounded-2xl flex items-center gap-4 text-amber-800">
-    <AlertCircle />
-    <div>
-      <p className="font-bold">No Running Backend Nodes</p>
-      <p className="text-sm">Go to the Terminal and run some containers (e.g. <code>docker run</code>) to start balancing traffic. Stopped containers won't receive traffic.</p>
-    </div>
-  </div>
-) : (
+        <div className="bg-amber-50 border border-amber-200 p-6 rounded-2xl flex items-center gap-4 text-amber-800">
+          <AlertCircle />
+          <div>
+            <p className="font-bold">No Running Backend Nodes</p>
+            <p className="text-sm">Go to the Terminal and run some containers (e.g. <code>docker run</code>) to start balancing traffic. Stopped containers won't receive traffic.</p>
+          </div>
+        </div>
+      ) : (
         <div className="grid grid-cols-1 gap-12">
           <div className="bg-white border border-slate-200 rounded-2xl p-8 shadow-sm">
              <div className="flex justify-between items-center mb-8">
