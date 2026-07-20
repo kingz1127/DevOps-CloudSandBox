@@ -12,7 +12,7 @@ spring:
             name: Access-Control-Allow-Origin Access-Control-Allow-Credentials
       routes:
         - id: auth-service
-          uri: lb://AUTH-SERVICE
+          uri: http://auth-service:8081
           predicates:
             - Path=/api/v1/auth/**, /auth-service/v3/api-docs/**
           filters:
@@ -21,7 +21,7 @@ spring:
             - RewritePath=/auth-service/(?<path>.*), /$\{path}
 
         - id: container-sim-service
-          uri: lb://CONTAINER-SIM-SERVICE
+          uri: http://container-sim-service:8082
           predicates:
             - Path=/api/v1/containers/**, /container-sim-service/v3/api-docs/**
           filters:
@@ -37,7 +37,7 @@ spring:
             - RewritePath=/manifest-service/(?<path>.*), /$\{path}
 
         - id: progress-service
-          uri: lb://PROGRESS-SERVICE
+          uri: http://progress-service:8085
           predicates:
             - Path=/api/v1/progress/**, /progress-service/v3/api-docs/**
           filters:
