@@ -28,19 +28,16 @@
 
 
 FROM maven:3.9-eclipse-temurin-17 AS build
-ARG SERVICE_NAME
-ENV SERVICE_NAME=${SERVICE_NAME}
 WORKDIR /app
 
 # Copy everything
 COPY . .
 
-# Build the specific service
-RUN mvn clean package -pl ${SERVICE_NAME} -am -DskipTests -Dmaven.javadoc.skip=true
+# Build everything (skip tests)
+RUN mvn clean package -DskipTests -Dmaven.javadoc.skip=true
 
 FROM eclipse-temurin:17-jre-jammy
-ARG SERVICE_NAME
-ENV SERVICE_NAME=${SERVICE_NAME}
+ARG SERVICE_NAME=api-gateway
 WORKDIR /app
 
 # Copy the JAR from the build stage
