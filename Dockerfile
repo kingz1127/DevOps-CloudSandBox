@@ -34,15 +34,15 @@ WORKDIR /app
 # Copy everything
 COPY . .
 
-# Build only the requested service - use full module path
-RUN mvn clean package -pl ./${SERVICE_NAME} -am -DskipTests -Dmaven.javadoc.skip=true
+# Build the specific service
+RUN mvn clean package -pl ${SERVICE_NAME} -am -DskipTests -Dmaven.javadoc.skip=true
 
 FROM eclipse-temurin:17-jre-jammy
 ARG SERVICE_NAME
 WORKDIR /app
 
-# Copy the JAR from the build stage
-COPY --from=build /app/${SERVICE_NAME}/target/${SERVICE_NAME}-*.jar app.jar
+# Find and copy the JAR from anywhere in the build stage
+COPY --from=build /app/${SERVICE_NAME}/target/*.jar app.jar
 
 RUN useradd -m sandboxuser
 USER sandboxuser
