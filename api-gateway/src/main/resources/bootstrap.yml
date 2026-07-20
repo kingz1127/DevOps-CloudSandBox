@@ -1,4 +1,4 @@
-# api-gateway/src/main/resources/bootstrap.yml
+
 spring:
   cloud:
     config:
