@@ -29,6 +29,7 @@
 
 FROM maven:3.9-eclipse-temurin-17 AS build
 ARG SERVICE_NAME
+ENV SERVICE_NAME=${SERVICE_NAME}
 WORKDIR /app
 
 # Copy everything
@@ -39,9 +40,10 @@ RUN mvn clean package -pl ${SERVICE_NAME} -am -DskipTests -Dmaven.javadoc.skip=t
 
 FROM eclipse-temurin:17-jre-jammy
 ARG SERVICE_NAME
+ENV SERVICE_NAME=${SERVICE_NAME}
 WORKDIR /app
 
-# Find and copy the JAR from anywhere in the build stage
+# Copy the JAR from the build stage
 COPY --from=build /app/${SERVICE_NAME}/target/*.jar app.jar
 
 RUN useradd -m sandboxuser
