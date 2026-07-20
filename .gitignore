@@ -1,1 +1,29 @@
+# Environment variables
 .env
+.env.local
+.env.*.local
+
+# Database data
+data/
+**/data/
+
+# IDE
+.idea/
+.vscode/
+*.iml
+.classpath
+.project
+.settings/
+
+# Logs
+*.log
+logs/
+
+# Build artifacts
+target/
+build/
+dist/
+node_modules/
+
+# Docker volumes
+docker/volumes/
